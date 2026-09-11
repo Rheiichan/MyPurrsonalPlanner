@@ -18,11 +18,12 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 - How Are You Feeling? — tap a feeling, get a suggested action; where the action maps to a real part of the app (Eat → Recipes, Write Them Down → Notebooks, Go Outside → Travel Planner, Plan For the Future → Goals, Focus on the Present / List Your Achievements / Remember a Time You Succeeded → Gratitude Journal, Organize Something → Calendar, Do a Simple Task You Enjoy → Project Planner) there's a "Take me there" button; the rest are just gentle in-the-moment suggestions
 - Goals — a simple list for things you're planning toward, with an optional target date and a done checkbox
 - Gratitude Journal — two tabs: Gratitude (daily "I'm grateful for…" entries) and Achievements (a running list of wins to look back on)
-- Secret Diary — a PIN-protected free-form journal (4-digit PIN, set up on first visit, required every visit after that); admins can reset a forgotten PIN back to 0000 from the Admin panel, without ever seeing the actual PIN (only a hash is stored)
-- My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary) while keeping your account and profile
+- Secret Diary — a PIN-protected free-form journal with a notebook-paper look (ruled lines, margin line, spiral holes, handwriting-style font), a Change PIN flow, and expandable entry cards showing exact date/time; admins can reset a forgotten PIN back to 0000 from the Admin panel, without ever seeing the actual PIN (only a hash is stored)
+- Self-Care Challenge — the 30-day checklist as pastel cards, tracked per calendar month (resets automatically each month), with a running "X/30 completed" count and a history list of past months (e.g. "August 2026 — 14/30 completed")
+- My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary, self-care) while keeping your account and profile
 
 ## Modules still to build
-Budgeting, Recipes, Fitness Tracker, Self-Care Challenge, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
+Budgeting, Recipes, Fitness Tracker, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
 
 ## Paid access / admin
 
@@ -53,6 +54,7 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
    - `supabase/004_sleep_tracker.sql` — adds the `sleep_logs` table (one row per user per day: sleep time, wake time, computed duration) for the Sleep Tracker.
    - `supabase/005_goals_gratitude.sql` — adds `goals`, `gratitude_entries`, and `achievements` tables, used by Goals, Gratitude Journal, and the "How Are You Feeling?" flow.
    - `supabase/006_secret_diary.sql` — enables the `pgcrypto` extension, adds `diary_pins` (PIN hashes only, never plain text) and `diary_entries` tables, and the `admin_reset_diary_pin` RPC.
+   - `supabase/007_selfcare_challenge.sql` — adds `selfcare_logs` (one row per completed day per month) for the 30-Day Self-Care Challenge.
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.
 

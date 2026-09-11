@@ -10,7 +10,7 @@ export default defineConfig({
       includeAssets: ['favicon.png', 'icons/apple-touch-icon.png'],
       manifest: {
         name: 'My Purrsonal Planner',
-        short_name: 'Purrsonal',
+        short_name: 'PurrPlanner',
         description: 'Your cozy all-in-one life planner — calendar, mood, budget, fitness, and more.',
         theme_color: '#4FBDB0',
         background_color: '#FFF8F3',

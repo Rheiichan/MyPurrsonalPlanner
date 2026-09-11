@@ -90,18 +90,29 @@ export default function SecretDiary() {
       return
     }
     const pin_hash = await hashPin(pin)
-    await supabase.from('diary_pins').insert({ user_id: user.id, pin_hash })
+    const { error: insertError } = await supabase.from('diary_pins').insert({ user_id: user.id, pin_hash })
+    if (insertError) {
+      setError(`Couldn't save your PIN (${insertError.message}). Please try again.`)
+      setSetupStep('choose')
+      setChosenPin('')
+      setPinInput('')
+      return
+    }
     setHasPin(true)
     setUnlocked(true)
   }
 
   async function handleUnlockSubmit(pin) {
     const pin_hash = await hashPin(pin)
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from('diary_pins')
       .select('pin_hash')
       .eq('user_id', user.id)
       .maybeSingle()
+    if (fetchError) {
+      setError(`Something went wrong (${fetchError.message}).`)
+      return
+    }
     if (data?.pin_hash === pin_hash) {
       setUnlocked(true)
       setError('')
@@ -233,6 +244,7 @@ function DiaryEntries({ user }) {
   const [content, setContent] = useState('')
   const [expandedIds, setExpandedIds] = useState(new Set())
   const [changingPin, setChangingPin] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   async function load() {
     setLoading(true)
@@ -251,7 +263,12 @@ function DiaryEntries({ user }) {
   async function addEntry(e) {
     e.preventDefault()
     if (!content.trim()) return
-    await supabase.from('diary_entries').insert({ user_id: user.id, content: content.trim() })
+    setSaveError('')
+    const { error } = await supabase.from('diary_entries').insert({ user_id: user.id, content: content.trim() })
+    if (error) {
+      setSaveError(`Couldn't save your entry (${error.message}). Your text is still here — try again.`)
+      return
+    }
     setContent('')
     load()
   }
@@ -303,6 +320,7 @@ function DiaryEntries({ user }) {
             style={{ width: '100%', padding: '10px 12px 10px 6px', background: 'transparent', border: 'none', outline: 'none', fontSize: 18, resize: 'vertical', marginBottom: 10, lineHeight: '28px' }}
           />
           <button className="btn-primary">Save entry</button>
+          {saveError && <p style={{ color: 'var(--pink-700)', fontSize: 13, marginTop: 10 }}>{saveError}</p>}
         </form>
       </div>
 
