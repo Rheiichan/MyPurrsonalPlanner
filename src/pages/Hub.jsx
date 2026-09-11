@@ -55,16 +55,7 @@ export default function Hub() {
         </p>
 
         <div className="card" style={{ marginBottom: 30, background: 'var(--teal-100)', border: 'none', textAlign: 'left' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 10 }}>
-            <h3 style={{ fontSize: 16 }}>Today's schedule</h3>
-            <Link
-              to="/calendar"
-              className="btn-secondary"
-              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13 }}
-            >
-              <IconCalendar /> View my Calendar
-            </Link>
-          </div>
+          <h3 style={{ fontSize: 16, marginBottom: 10 }}>Today's schedule</h3>
           {loading ? (
             <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Loading…</p>
           ) : todayEvents.length === 0 ? (
@@ -82,15 +73,25 @@ export default function Hub() {
               ))}
             </div>
           )}
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <Link
+              to="/calendar"
+              className="btn-secondary"
+              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13 }}
+            >
+              <IconCalendar /> View my Calendar
+            </Link>
+          </div>
         </div>
 
         <h3 style={{ fontSize: 16, marginBottom: 14, textAlign: 'left' }}>Your planner</h3>
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-            gap: 14,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: 12,
           }}
+          className="module-grid"
         >
           {MODULES.map((m) => {
             const Icon = m.Icon
@@ -98,33 +99,39 @@ export default function Hub() {
               <Link
                 key={m.key}
                 to={m.path}
-                className="card"
+                className="card module-btn"
                 style={{
                   textDecoration: 'none', display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', textAlign: 'center', gap: 8, padding: '20px 14px',
-                  position: 'relative', color: 'var(--ink)',
-                  opacity: m.available ? 1 : 0.85,
+                  alignItems: 'center', textAlign: 'center', gap: 8, padding: '20px 12px',
+                  position: 'relative', color: 'var(--ink)', background: 'var(--pink-100)',
+                  boxShadow: 'none', border: '1px solid var(--pink-300)',
+                  opacity: m.available ? 1 : 0.9,
                 }}
               >
                 {!m.available && (
-                  <span className="pill" style={{ position: 'absolute', top: 10, right: 10, background: 'var(--pink-100)', color: 'var(--pink-700)' }}>
+                  <span className="pill" style={{ position: 'absolute', top: 10, right: 10, background: 'white', color: 'var(--pink-700)' }}>
                     Soon
                   </span>
                 )}
                 <div
                   style={{
-                    width: 44, height: 44, borderRadius: 14, background: 'var(--teal-100)',
+                    width: 42, height: 42, borderRadius: 14, background: 'white',
                     color: 'var(--teal-700)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <Icon width="22" height="22" />
+                  <Icon width="21" height="21" />
                 </div>
-                <span style={{ fontWeight: 700, fontSize: 13.5 }}>{m.label}</span>
+                <span style={{ fontWeight: 700, fontSize: 13 }}>{m.label}</span>
               </Link>
             )
           })}
         </div>
       </div>
+      <style>{`
+        @media (max-width: 420px) {
+          .module-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
     </div>
   )
 }
