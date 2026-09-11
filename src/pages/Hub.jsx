@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { MODULES } from '../modules'
 import mascot from '../assets/mascot.png'
 import { IconCalendar } from '../components/icons'
+import MoodWidget from '../components/MoodWidget'
 
 function todayISO() {
   return new Date().toLocaleDateString('en-CA')
@@ -82,6 +83,10 @@ export default function Hub() {
               <IconCalendar /> View my Calendar
             </Link>
           </div>
+        </div>
+
+        <div className="card" style={{ marginBottom: 30, background: 'var(--pink-100)', border: 'none' }}>
+          <MoodWidget compact />
         </div>
 
         <h3 style={{ fontSize: 16, marginBottom: 14, textAlign: 'left' }}>Your planner</h3>

@@ -11,11 +11,12 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 ## What's built so far
 - Signup / login (Supabase email auth)
 - Onboarding wizard: name, birthday, height, weight (optional) → BMI category + suggested healthy weight range + diet focus (lose/maintain/gain)
-- Hub shell — sidebar with all 13 planned modules, "soon" badges on the ones not built yet
-- Calendar module — Day / Week / Month toggle, event CRUD (title, time, type/color, notes), per-day to-do list, "Today's schedule" preview on the Hub
+- Hub — a centered greeting, "Today's schedule" card with a "View my Calendar" button, a mood check-in widget, and a button-grid menu (no side nav) with monochrome icons on pink cards
+- Calendar module — Day / Week / Month toggle (week is a scrollable list of day-rows, easier on mobile), event CRUD (title, time, type/color, notes), per-day to-do list — agenda + to-dos sit above the calendar grid on Month/Week views
+- Mood Tracker — a 5-level green→orange→red mood meter (same face icon, color-coded), one log per day, plus a full history list on its own page
 
 ## Modules still to build
-Mood Tracker, How Are You Feeling?, Budgeting, Recipes, Fitness Tracker, Sleep Tracker, Self-Care Challenge, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
+How Are You Feeling?, Budgeting, Recipes, Fitness Tracker, Sleep Tracker, Self-Care Challenge, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
 
 ## Paid access / admin
 
@@ -42,6 +43,7 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
 1. **Database**: In your Supabase project (aockokxdioxijszocakg), open the SQL Editor and run, in order:
    - `supabase/001_init.sql` — creates `profiles`, `calendar_events`, `daily_todos` with row-level security (each user only sees their own data), plus a trigger that auto-creates a profile row on signup.
    - `supabase/002_admin_access.sql` — adds the `admins` table, the paid-activation fields on `profiles`, and the admin RPCs (`admin_activate_user`, `admin_suspend_user`, `admin_get_usage_stats`).
+   - `supabase/003_mood_tracker.sql` — adds the `mood_logs` table (one row per user per day) for the Mood Tracker.
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.
 

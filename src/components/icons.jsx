@@ -120,3 +120,27 @@ export function IconNotebook(props) {
     </svg>
   )
 }
+
+// Single-color face whose expression (frown/neutral/smile) reflects a 1-5
+// mood level. Used for the mood-meter buttons — same shape throughout,
+// only the color (passed via `color`, defaulting to currentColor) changes.
+export function IconMoodFace({ level = 3, color, size = 22, ...rest }) {
+  const c = color || 'currentColor'
+  let mouth
+  if (level <= 2) {
+    mouth = 'M8.3 15.8c1-1.6 2.3-2.4 3.7-2.4s2.7.8 3.7 2.4' // frown
+  } else if (level === 3) {
+    mouth = 'M8.3 14.6h7.4' // neutral line
+  } else {
+    mouth = 'M8.3 13.8c1 1.6 2.3 2.4 3.7 2.4s2.7-.8 3.7-2.4' // smile
+  }
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} {...rest}>
+      <circle cx="12" cy="12" r="9.3" fill={c} opacity="0.16" />
+      <circle cx="12" cy="12" r="9.3" fill="none" stroke={c} strokeWidth="1.8" />
+      <circle cx="9" cy="9.8" r="1.05" fill={c} />
+      <circle cx="15" cy="9.8" r="1.05" fill={c} />
+      <path d={mouth} fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
