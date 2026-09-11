@@ -1,76 +1,80 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import PageShell from '../components/PageShell'
-import MoodWidget from '../components/MoodWidget'
-import { IconMoodFace } from '../components/icons'
-import { moodByLevel } from '../moods'
+import { MOOD_LEVELS, moodByLevel } from '../moods'
+import { IconMoodFace } from './icons'
 
-export default function MoodTracker() {
+function todayISO() {
+  return new Date().toLocaleDateString('en-CA')
+}
+
+export default function MoodWidget({ compact = false }) {
   const { user } = useAuth()
-  const [logs, setLogs] = useState([])
+  const [todayLog, setTodayLog] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
-  async function loadLogs() {
-    setLoading(true)
-    const { data } = await supabase
+  useEffect(() => {
+    if (!user) return
+    supabase
       .from('mood_logs')
       .select('*')
       .eq('user_id', user.id)
-      .order('log_date', { ascending: false })
-      .limit(60)
-    setLogs(data || [])
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    if (user) loadLogs()
+      .eq('log_date', todayISO())
+      .maybeSingle()
+      .then(({ data }) => {
+        setTodayLog(data)
+        setLoading(false)
+      })
   }, [user])
 
-  async function deleteLog(id) {
-    await supabase.from('mood_logs').delete().eq('id', id)
-    loadLogs()
+  async function logMood(level) {
+    setSaving(true)
+    const { data } = await supabase
+      .from('mood_logs')
+      .upsert(
+        { user_id: user.id, log_date: todayISO(), mood_level: level },
+        { onConflict: 'user_id,log_date' }
+      )
+      .select()
+      .maybeSingle()
+    setTodayLog(data)
+    setSaving(false)
   }
 
+  const selectedMood = todayLog ? moodByLevel(todayLog.mood_level) : null
+
   return (
-    <PageShell title="Mood Tracker">
-      <h1 style={{ fontSize: 22, marginBottom: 4 }}>Mood Tracker</h1>
-      <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
-        One check-in a day — a quick, honest read on how you're doing.
-      </p>
-
-      <div className="card" style={{ marginBottom: 20, background: 'var(--teal-100)', border: 'none' }} onClickCapture={() => setTimeout(loadLogs, 300)}>
-        <MoodWidget />
-      </div>
-
-      <h3 style={{ fontSize: 15, marginBottom: 12 }}>Your logs</h3>
-      {loading ? (
-        <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>Loading…</p>
-      ) : logs.length === 0 ? (
-        <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>No moods logged yet — start with today above.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {logs.map((log) => {
-            const mood = moodByLevel(log.mood_level)
-            return (
-              <div
-                key={log.id}
-                className="card"
-                style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'none', border: '1px solid var(--teal-100)' }}
-              >
-                <IconMoodFace level={log.mood_level} color={mood.color} size={30} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>{mood.label}</div>
-                  <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
-                    {new Date(log.log_date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                  </div>
-                </div>
-                <button className="btn-ghost" onClick={() => deleteLog(log.id)} style={{ fontSize: 12 }}>Remove</button>
-              </div>
-            )
-          })}
-        </div>
+    <div>
+      <h3 style={{ fontSize: compact ? 15 : 16, marginBottom: compact ? 8 : 4 }}>Log your mood</h3>
+      {!compact && (
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 12 }}>
+          {loading ? ' ' : selectedMood ? `Today: feeling ${selectedMood.label.toLowerCase()}` : 'How are you feeling right now?'}
+        </p>
       )}
-    </PageShell>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
+        {MOOD_LEVELS.map((m) => {
+          const isSelected = todayLog?.mood_level === m.level
+          return (
+            <button
+              key={m.level}
+              onClick={() => logMood(m.level)}
+              disabled={saving}
+              aria-label={m.label}
+              title={m.label}
+              style={{
+                border: isSelected ? `2px solid ${m.color}` : '2px solid transparent',
+                background: 'transparent', borderRadius: 14, padding: 4,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                opacity: todayLog && !isSelected ? 0.5 : 1,
+              }}
+            >
+              <IconMoodFace level={m.level} color={m.color} size={compact ? 26 : 32} />
+              {!compact && <span style={{ fontSize: 10, color: 'var(--ink-soft)', fontWeight: 700 }}>{m.label}</span>}
+            </button>
+          )
+        })}
+      </div>
+    </div>
   )
 }
