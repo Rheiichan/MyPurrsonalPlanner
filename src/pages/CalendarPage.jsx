@@ -493,15 +493,28 @@ function MonthView({ cursor, selectedDate, onSelect, eventsFor, todayIso }) {
               style={{
                 border: isToday ? '2px solid var(--teal-500)' : '1px solid var(--teal-100)',
                 background: isSelected ? 'var(--pink-100)' : 'white',
-                borderRadius: 10, minHeight: 64, padding: 6, textAlign: 'left',
+                borderRadius: 10, minHeight: 78, padding: 6, textAlign: 'left',
                 opacity: inMonth ? 1 : 0.4, display: 'flex', flexDirection: 'column', gap: 3,
+                overflow: 'hidden',
               }}
             >
               <span style={{ fontSize: 12, fontWeight: 700 }}>{d.getDate()}</span>
-              <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                {dayEvents.slice(0, 4).map((ev) => (
-                  <span key={ev.id} style={{ width: 6, height: 6, borderRadius: 6, background: ev.color }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+                {dayEvents.slice(0, 2).map((ev) => (
+                  <div
+                    key={ev.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 3, fontSize: 9.5,
+                      overflow: 'hidden', width: '100%',
+                    }}
+                  >
+                    <span style={{ width: 5, height: 5, borderRadius: 5, background: ev.color, flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</span>
+                  </div>
                 ))}
+                {dayEvents.length > 2 && (
+                  <span style={{ fontSize: 9, color: 'var(--ink-soft)' }}>+{dayEvents.length - 2} more</span>
+                )}
               </div>
             </button>
           )
