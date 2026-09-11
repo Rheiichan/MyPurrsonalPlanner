@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import SidebarLayout from '../components/SidebarLayout'
+import PageShell from '../components/PageShell'
 
 function StatusPill({ status }) {
   const map = {
@@ -57,7 +57,7 @@ export default function AdminPanel() {
   const shown = tab === 'pending' ? pending : tab === 'active' ? active : tab === 'suspended' ? suspended : users
 
   return (
-    <SidebarLayout title="Admin">
+    <PageShell title="Admin">
       <h1 style={{ fontSize: 22, marginBottom: 4 }}>Admin panel</h1>
       <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
         Confirm payments to activate access, and keep an eye on usage.
@@ -126,6 +126,6 @@ export default function AdminPanel() {
           ))}
         </div>
       )}
-    </SidebarLayout>
+    </PageShell>
   )
 }

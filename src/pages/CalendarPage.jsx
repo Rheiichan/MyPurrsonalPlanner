@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import SidebarLayout from '../components/SidebarLayout'
+import PageShell from '../components/PageShell'
 
 const EVENT_TYPES = [
   { key: 'personal', label: 'Personal', color: '#4FBDB0' },
@@ -185,7 +185,7 @@ export default function CalendarPage() {
   const todayIso = toISO(new Date())
 
   return (
-    <SidebarLayout title="Calendar">
+    <PageShell title="Calendar">
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22 }}>Calendar</h1>
@@ -298,7 +298,7 @@ export default function CalendarPage() {
           </div>
         )}
       </div>
-    </SidebarLayout>
+    </PageShell>
   )
 }
 
