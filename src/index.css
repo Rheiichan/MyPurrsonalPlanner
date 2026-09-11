@@ -1,0 +1,131 @@
+:root {
+  --teal-900: #1F3A38;
+  --teal-700: #2E7A70;
+  --teal-500: #4FBDB0;
+  --teal-300: #9BDCD2;
+  --teal-100: #E4F7F3;
+  --pink-700: #E8617A;
+  --pink-500: #FF8FA3;
+  --pink-300: #FFC2CE;
+  --pink-100: #FFEEF2;
+  --cream: #FFF8F3;
+  --ink: #2E3A39;
+  --ink-soft: #6B7877;
+  --white: #FFFFFF;
+
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --shadow-soft: 0 6px 20px rgba(47, 122, 112, 0.10);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .display {
+  font-family: var(--font-display);
+  color: var(--teal-900);
+  margin: 0;
+  font-weight: 700;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+
+a { color: var(--teal-700); }
+
+::selection { background: var(--pink-300); }
+
+:focus-visible {
+  outline: 3px solid var(--pink-500);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--teal-500);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.btn-primary:hover { background: var(--teal-700); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { background: var(--teal-300); cursor: not-allowed; }
+
+.btn-secondary {
+  background: var(--pink-100);
+  color: var(--pink-700);
+  border: 2px solid var(--pink-300);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-weight: 700;
+  font-size: 15px;
+}
+.btn-secondary:hover { background: var(--pink-300); }
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  font-weight: 600;
+  padding: 8px 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.field label {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--teal-900);
+}
+.field input, .field select {
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--teal-100);
+  background: var(--white);
+}
+.field input:focus, .field select:focus {
+  border-color: var(--teal-500);
+  outline: none;
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 24px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
