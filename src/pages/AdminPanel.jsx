@@ -21,6 +21,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [noteDrafts, setNoteDrafts] = useState({})
+  const [pinResetFor, setPinResetFor] = useState(null)
 
   async function loadUsers() {
     setLoading(true)
@@ -49,6 +50,12 @@ export default function AdminPanel() {
     const { error } = await supabase.rpc('admin_suspend_user', { p_user_id: userId, p_note: note })
     if (error) { setError(error.message); return }
     loadUsers()
+  }
+
+  async function resetDiaryPin(userId) {
+    const { error } = await supabase.rpc('admin_reset_diary_pin', { p_user_id: userId })
+    if (error) { setError(error.message); return }
+    setPinResetFor(userId)
   }
 
   const pending = users.filter((u) => u.account_status === 'pending_payment')
@@ -121,7 +128,15 @@ export default function AdminPanel() {
                     Suspend
                   </button>
                 )}
+                <button className="btn-ghost" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => resetDiaryPin(u.user_id)}>
+                  Reset diary PIN → 0000
+                </button>
               </div>
+              {pinResetFor === u.user_id && (
+                <p style={{ fontSize: 12, color: 'var(--teal-700)', marginTop: 8 }}>
+                  Diary PIN reset to 0000 — let them know so they can log in and set a new one.
+                </p>
+              )}
             </div>
           ))}
         </div>

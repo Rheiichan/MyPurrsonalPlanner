@@ -13,6 +13,8 @@ import SleepTracker from './pages/SleepTracker'
 import HowAreYouFeeling from './pages/HowAreYouFeeling'
 import Goals from './pages/Goals'
 import GratitudeJournal from './pages/GratitudeJournal'
+import SecretDiary from './pages/SecretDiary'
+import Profile from './pages/Profile'
 
 function FullScreenLoader() {
   return (
@@ -80,6 +82,8 @@ function AppRoutes() {
       <Route path="/feeling" element={<RequireAuth><HowAreYouFeeling /></RequireAuth>} />
       <Route path="/goals" element={<RequireAuth><Goals /></RequireAuth>} />
       <Route path="/gratitude" element={<RequireAuth><GratitudeJournal /></RequireAuth>} />
+      <Route path="/secret-diary" element={<RequireAuth><SecretDiary /></RequireAuth>} />
+      <Route path="/profile" element={<RequireAuth requireOnboarded={false}><Profile /></RequireAuth>} />
       <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>

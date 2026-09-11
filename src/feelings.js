@@ -15,7 +15,7 @@ export const FEELINGS = [
     ],
   },
   { feeling: 'Everyone Hates Everyone', action: 'Go Outside', path: '/travel' },
-  { feeling: 'Overwhelmed by Thoughts', action: 'Write Them Down', path: '/notebooks' },
+  { feeling: 'Overwhelmed by Thoughts', action: 'Write Them Down', path: '/secret-diary' },
   {
     feeling: 'Lost and Alone',
     action: 'Talk to a Friend',

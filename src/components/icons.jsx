@@ -139,6 +139,23 @@ export function IconGratitude(props) {
     </svg>
   )
 }
+export function IconLock(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" {...common} {...props}>
+      <rect x="5" y="11" width="14" height="9.5" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+      <circle cx="12" cy="15.3" r="1.3" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+export function IconProfile(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" {...common} {...props}>
+      <circle cx="12" cy="8.3" r="3.3" />
+      <path d="M5 19.5c0-3.4 3.1-6 7-6s7 2.6 7 6" />
+    </svg>
+  )
+}
 
 // Single-color face whose expression (frown/neutral/smile) reflects a 1-5
 // mood level. Used for the mood-meter buttons — same shape throughout,

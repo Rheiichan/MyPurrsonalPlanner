@@ -1,7 +1,7 @@
 import {
   IconCalendar, IconMood, IconFeeling, IconBudget, IconRecipes,
   IconFitness, IconSleep, IconSelfcare, IconGrocery, IconProjects, IconTravel, IconNotebook,
-  IconGoals, IconGratitude,
+  IconGoals, IconGratitude, IconLock,
 } from './components/icons'
 
 export const MODULES = [
@@ -10,6 +10,7 @@ export const MODULES = [
   { key: 'feeling', label: 'How Are You Feeling?', Icon: IconFeeling, path: '/feeling', available: true },
   { key: 'goals', label: 'Goals', Icon: IconGoals, path: '/goals', available: true },
   { key: 'gratitude', label: 'Gratitude Journal', Icon: IconGratitude, path: '/gratitude', available: true },
+  { key: 'secret-diary', label: 'Secret Diary', Icon: IconLock, path: '/secret-diary', available: true },
   { key: 'budget', label: 'Budgeting', Icon: IconBudget, path: '/budget', available: false },
   { key: 'recipes', label: 'Recipes', Icon: IconRecipes, path: '/recipes', available: false },
   { key: 'fitness', label: 'Fitness Tracker', Icon: IconFitness, path: '/fitness', available: false },
