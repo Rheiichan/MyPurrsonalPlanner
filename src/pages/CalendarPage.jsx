@@ -213,44 +213,9 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: view === 'day' ? '1fr' : '2fr 1fr', gap: 20, alignItems: 'start' }}>
-        <div className="card">
-          {view === 'month' && (
-            <MonthView
-              cursor={cursor}
-              selectedDate={selectedDate}
-              onSelect={(d) => { setSelectedDate(d); setView('day') }}
-              eventsFor={eventsFor}
-              todayIso={todayIso}
-            />
-          )}
-          {view === 'week' && (
-            <WeekView
-              start={rangeStart}
-              selectedDate={selectedDate}
-              onSelect={(d) => { setSelectedDate(d); setView('day') }}
-              eventsFor={eventsFor}
-              todayIso={todayIso}
-            />
-          )}
-          {view === 'day' && (
-            <DayView
-              date={selectedDate}
-              events={eventsFor(selectedDate)}
-              onDelete={deleteEvent}
-              showForm={showForm}
-              setShowForm={setShowForm}
-              newTitle={newTitle} setNewTitle={setNewTitle}
-              newTime={newTime} setNewTime={setNewTime}
-              newType={newType} setNewType={setNewType}
-              newNotes={newNotes} setNewNotes={setNewNotes}
-              onAdd={addEvent}
-            />
-          )}
-        </div>
-
-        {view !== 'day' && (
-          <div className="card" style={{ background: 'var(--pink-100)' }}>
+      {view !== 'day' && (
+        <>
+          <div className="card" style={{ background: 'var(--pink-100)', marginBottom: 16 }}>
             <h3 style={{ fontSize: 15, marginBottom: 10 }}>
               {toISO(selectedDate) === todayIso ? "Today's" : selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} agenda
             </h3>
@@ -266,38 +231,65 @@ export default function CalendarPage() {
               onAdd={addEvent}
             />
           </div>
+
+          <TodoCard
+            selectedDate={selectedDate}
+            todos={todos}
+            newTodo={newTodo}
+            setNewTodo={setNewTodo}
+            onAdd={addTodo}
+            onToggle={toggleTodo}
+            onDelete={deleteTodo}
+          />
+        </>
+      )}
+
+      <div className="card">
+        {view === 'month' && (
+          <MonthView
+            cursor={cursor}
+            selectedDate={selectedDate}
+            onSelect={(d) => setSelectedDate(d)}
+            eventsFor={eventsFor}
+            todayIso={todayIso}
+          />
+        )}
+        {view === 'week' && (
+          <WeekView
+            start={rangeStart}
+            selectedDate={selectedDate}
+            onSelect={(d) => setSelectedDate(d)}
+            eventsFor={eventsFor}
+            todayIso={todayIso}
+          />
+        )}
+        {view === 'day' && (
+          <DayView
+            date={selectedDate}
+            events={eventsFor(selectedDate)}
+            onDelete={deleteEvent}
+            showForm={showForm}
+            setShowForm={setShowForm}
+            newTitle={newTitle} setNewTitle={setNewTitle}
+            newTime={newTime} setNewTime={setNewTime}
+            newType={newType} setNewType={setNewType}
+            newNotes={newNotes} setNewNotes={setNewNotes}
+            onAdd={addEvent}
+          />
         )}
       </div>
 
-      <div className="card" style={{ marginTop: 20 }}>
-        <h3 style={{ fontSize: 15, marginBottom: 12 }}>
-          To-dos for {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        </h3>
-        <form onSubmit={addTodo} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <input
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            placeholder="Add a to-do…"
-            style={{ flex: 1, padding: '9px 12px', borderRadius: 10, border: '2px solid var(--teal-100)' }}
-          />
-          <button className="btn-secondary" style={{ padding: '9px 16px' }}>Add</button>
-        </form>
-        {todos.length === 0 ? (
-          <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>No to-dos for this day yet.</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {todos.map((t) => (
-              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <input type="checkbox" checked={t.is_done} onChange={() => toggleTodo(t)} />
-                <span style={{ flex: 1, fontSize: 14, textDecoration: t.is_done ? 'line-through' : 'none', color: t.is_done ? 'var(--ink-soft)' : 'var(--ink)' }}>
-                  {t.content}
-                </span>
-                <button className="btn-ghost" onClick={() => deleteTodo(t.id)} style={{ fontSize: 12 }}>Remove</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {view === 'day' && (
+        <TodoCard
+          selectedDate={selectedDate}
+          todos={todos}
+          newTodo={newTodo}
+          setNewTodo={setNewTodo}
+          onAdd={addTodo}
+          onToggle={toggleTodo}
+          onDelete={deleteTodo}
+        />
+      )}
     </PageShell>
   )
 }
@@ -393,10 +385,44 @@ function MiniAgenda(props) {
   )
 }
 
+function TodoCard({ selectedDate, todos, newTodo, setNewTodo, onAdd, onToggle, onDelete }) {
+  return (
+    <div className="card" style={{ marginBottom: 16 }}>
+      <h3 style={{ fontSize: 15, marginBottom: 12 }}>
+        To-dos for {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+      </h3>
+      <form onSubmit={onAdd} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <input
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          placeholder="Add a to-do…"
+          style={{ flex: 1, padding: '9px 12px', borderRadius: 10, border: '2px solid var(--teal-100)' }}
+        />
+        <button className="btn-secondary" style={{ padding: '9px 16px' }}>Add</button>
+      </form>
+      {todos.length === 0 ? (
+        <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>No to-dos for this day yet.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {todos.map((t) => (
+            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input type="checkbox" checked={t.is_done} onChange={() => onToggle(t)} />
+              <span style={{ flex: 1, fontSize: 14, textDecoration: t.is_done ? 'line-through' : 'none', color: t.is_done ? 'var(--ink-soft)' : 'var(--ink)' }}>
+                {t.content}
+              </span>
+              <button className="btn-ghost" onClick={() => onDelete(t.id)} style={{ fontSize: 12 }}>Remove</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function WeekView({ start, selectedDate, onSelect, eventsFor, todayIso }) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i))
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {days.map((d) => {
         const iso = toISO(d)
         const isSelected = iso === toISO(selectedDate)
@@ -408,22 +434,33 @@ function WeekView({ start, selectedDate, onSelect, eventsFor, todayIso }) {
             onClick={() => onSelect(d)}
             style={{
               border: isToday ? '2px solid var(--teal-500)' : '2px solid var(--teal-100)',
-              background: isSelected ? 'var(--teal-100)' : 'white',
-              borderRadius: 14, padding: '10px 6px', textAlign: 'left', minHeight: 100,
-              display: 'flex', flexDirection: 'column', gap: 4,
+              background: isSelected ? 'var(--pink-100)' : 'white',
+              borderRadius: 14, padding: '10px 14px', textAlign: 'left',
+              display: 'flex', alignItems: 'center', gap: 14, width: '100%',
             }}
           >
-            <div style={{ fontSize: 11, color: 'var(--ink-soft)', fontWeight: 700 }}>
-              {d.toLocaleDateString('en-US', { weekday: 'short' })}
+            <div style={{ minWidth: 54, textAlign: 'center', flexShrink: 0 }}>
+              <div style={{ fontSize: 11, color: 'var(--ink-soft)', fontWeight: 700 }}>
+                {d.toLocaleDateString('en-US', { weekday: 'short' })}
+              </div>
+              <div className="display" style={{ fontSize: 18 }}>{d.getDate()}</div>
             </div>
-            <div className="display" style={{ fontSize: 16 }}>{d.getDate()}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 2 }}>
-              {dayEvents.slice(0, 3).map((ev) => (
-                <div key={ev.id} style={{ fontSize: 10, background: ev.color, color: 'white', borderRadius: 5, padding: '1px 5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {ev.title}
-                </div>
-              ))}
-              {dayEvents.length > 3 && <div style={{ fontSize: 10, color: 'var(--ink-soft)' }}>+{dayEvents.length - 3} more</div>}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
+              {dayEvents.length === 0 ? (
+                <span style={{ fontSize: 12, color: 'var(--ink-soft)' }}>No events</span>
+              ) : (
+                <>
+                  {dayEvents.slice(0, 3).map((ev) => (
+                    <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5 }}>
+                      <span style={{ width: 7, height: 7, borderRadius: 7, background: ev.color, flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</span>
+                    </div>
+                  ))}
+                  {dayEvents.length > 3 && (
+                    <span style={{ fontSize: 11, color: 'var(--ink-soft)' }}>+{dayEvents.length - 3} more</span>
+                  )}
+                </>
+              )}
             </div>
           </button>
         )
