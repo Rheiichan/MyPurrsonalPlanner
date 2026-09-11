@@ -5,6 +5,16 @@ import { FEELINGS } from '../feelings'
 
 export default function HowAreYouFeeling() {
   const [selected, setSelected] = useState(null)
+  const [advice, setAdvice] = useState(null)
+
+  function selectFeeling(f) {
+    setSelected(f)
+    if (!f.path && f.advice?.length) {
+      setAdvice(f.advice[Math.floor(Math.random() * f.advice.length)])
+    } else {
+      setAdvice(null)
+    }
+  }
 
   return (
     <PageShell title="How Are You Feeling?">
@@ -18,7 +28,7 @@ export default function HowAreYouFeeling() {
           {FEELINGS.map((f) => (
             <button
               key={f.feeling}
-              onClick={() => setSelected(f)}
+              onClick={() => selectFeeling(f)}
               className="card"
               style={{
                 textAlign: 'left', padding: '14px 16px', fontSize: 14, fontWeight: 700,
@@ -36,15 +46,18 @@ export default function HowAreYouFeeling() {
           <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 6 }}>Try this:</p>
           <h3 style={{ fontSize: 18, marginBottom: 18 }}>{selected.action}</h3>
 
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {selected.path ? (
               <Link to={selected.path} className="btn-primary" style={{ textDecoration: 'none' }}>
                 Take me there
               </Link>
             ) : (
-              <p style={{ fontSize: 13, color: 'var(--ink-soft)', fontStyle: 'italic' }}>
-                No page for this one — just a gentle nudge to try it now 💛
-              </p>
+              <div style={{ maxWidth: 340 }}>
+                <p style={{ fontSize: 14, lineHeight: 1.5, marginBottom: 10 }}>{advice}</p>
+                <button className="btn-secondary" style={{ fontSize: 12, padding: '6px 12px' }} onClick={() => selectFeeling(selected)}>
+                  Give me another thought
+                </button>
+              </div>
             )}
             <button className="btn-ghost" onClick={() => setSelected(null)}>← Pick another feeling</button>
           </div>
