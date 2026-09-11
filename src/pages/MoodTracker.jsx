@@ -75,6 +75,17 @@ export default function MoodWidget({ compact = false }) {
           )
         })}
       </div>
+      {selectedMood && (
+        <p
+          style={{
+            textAlign: 'center', fontSize: 13, fontWeight: 700, marginTop: 12, marginBottom: 0,
+            color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+          }}
+        >
+          <span style={{ width: 8, height: 8, borderRadius: 8, background: selectedMood.color, flexShrink: 0 }} />
+          {selectedMood.message}
+        </p>
+      )}
     </div>
   )
 }
