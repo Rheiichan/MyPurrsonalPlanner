@@ -1,6 +1,22 @@
 // Duration in hours between a sleep time and a wake time (HH:MM strings),
 // assuming the wake time is the next occurrence after the sleep time
 // (i.e. handles crossing midnight).
+// Convert a 24-hour "HH:MM" string to { hour12, minute, meridiem } for display.
+export function to12Hour(time24) {
+  const [h, m] = time24.split(':').map(Number)
+  const meridiem = h >= 12 ? 'PM' : 'AM'
+  let hour12 = h % 12
+  if (hour12 === 0) hour12 = 12
+  return { hour12, minute: m, meridiem }
+}
+
+// Convert 12-hour parts back to a 24-hour "HH:MM" string for storage.
+export function to24Hour(hour12, minute, meridiem) {
+  let h = hour12 % 12
+  if (meridiem === 'PM') h += 12
+  return `${String(h).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+
 export function computeSleepHours(sleepTime, wakeTime) {
   const [sh, sm] = sleepTime.split(':').map(Number)
   const [wh, wm] = wakeTime.split(':').map(Number)

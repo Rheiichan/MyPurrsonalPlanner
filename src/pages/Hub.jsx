@@ -101,7 +101,6 @@ export default function Hub() {
           </div>
         </div>
 
-        <h3 style={{ fontSize: 16, marginBottom: 14, textAlign: 'left' }}>Your planner</h3>
         <div
           style={{
             display: 'grid',

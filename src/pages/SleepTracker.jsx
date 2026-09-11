@@ -3,6 +3,12 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import SleepWidget from '../components/SleepWidget'
+import { to12Hour } from '../sleep'
+
+function formatTime12(time24) {
+  const { hour12, minute, meridiem } = to12Hour(time24)
+  return `${hour12}:${String(minute).padStart(2, '0')} ${meridiem}`
+}
 
 export default function SleepTracker() {
   const { user } = useAuth()
@@ -58,7 +64,7 @@ export default function SleepTracker() {
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{log.duration_hours}h</div>
                 <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
                   {new Date(log.log_date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                  {' · '}{log.sleep_time.slice(0, 5)} → {log.wake_time.slice(0, 5)}
+                  {' · '}{formatTime12(log.sleep_time.slice(0, 5))} → {formatTime12(log.wake_time.slice(0, 5))}
                 </div>
               </div>
               <button className="btn-ghost" onClick={() => deleteLog(log.id)} style={{ fontSize: 12 }}>Remove</button>

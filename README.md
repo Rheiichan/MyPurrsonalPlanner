@@ -14,10 +14,13 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 - Hub — a centered greeting, "Today's schedule" card with a "View my Calendar" button, a mood check-in widget, and a button-grid menu (no side nav) with monochrome icons on pink cards
 - Calendar module — Day / Week / Month toggle (week is a scrollable list of day-rows, easier on mobile), event CRUD (title, time, type/color, notes), per-day to-do list — agenda + to-dos sit above the calendar grid on Month/Week views
 - Mood Tracker — a 5-level green→orange→red mood meter (same face icon, color-coded), one log per day, an encouraging message after logging, plus a full history list on its own page
-- Sleep Tracker — "Log your Sleep" pop-up (sleep time + wake time), auto-computes hours (handles crossing midnight), shows a 7-day average with a "needs improvement / getting there / doing great" readout, plus a full history list on its own page
+- Sleep Tracker — "Log your Sleep" pop-up with a 12-hour time picker (sleep time + wake time), auto-computes hours (handles crossing midnight), shows a 7-day average with a "needs improvement / getting there / doing great" readout, plus a full history list on its own page
+- How Are You Feeling? — tap a feeling, get a suggested action; where the action maps to a real part of the app (Eat → Recipes, Write Them Down → Notebooks, Go Outside → Travel Planner, Plan For the Future → Goals, Focus on the Present / List Your Achievements / Remember a Time You Succeeded → Gratitude Journal, Organize Something → Calendar, Do a Simple Task You Enjoy → Project Planner) there's a "Take me there" button; the rest are just gentle in-the-moment suggestions
+- Goals — a simple list for things you're planning toward, with an optional target date and a done checkbox
+- Gratitude Journal — two tabs: Gratitude (daily "I'm grateful for…" entries) and Achievements (a running list of wins to look back on)
 
 ## Modules still to build
-How Are You Feeling?, Budgeting, Recipes, Fitness Tracker, Self-Care Challenge, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
+Budgeting, Recipes, Fitness Tracker, Self-Care Challenge, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
 
 ## Paid access / admin
 
@@ -46,6 +49,7 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
    - `supabase/002_admin_access.sql` — adds the `admins` table, the paid-activation fields on `profiles`, and the admin RPCs (`admin_activate_user`, `admin_suspend_user`, `admin_get_usage_stats`).
    - `supabase/003_mood_tracker.sql` — adds the `mood_logs` table (one row per user per day) for the Mood Tracker.
    - `supabase/004_sleep_tracker.sql` — adds the `sleep_logs` table (one row per user per day: sleep time, wake time, computed duration) for the Sleep Tracker.
+   - `supabase/005_goals_gratitude.sql` — adds `goals`, `gratitude_entries`, and `achievements` tables, used by Goals, Gratitude Journal, and the "How Are You Feeling?" flow.
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.
 

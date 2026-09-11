@@ -120,6 +120,25 @@ export function IconNotebook(props) {
     </svg>
   )
 }
+export function IconGoals(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" {...common} {...props}>
+      <circle cx="12" cy="12" r="8.3" />
+      <circle cx="12" cy="12" r="4.6" />
+      <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+export function IconGratitude(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" {...common} {...props}>
+      <rect x="4.5" y="4" width="15" height="16" rx="1.8" />
+      <path
+        d="M12 15.4c-2.6-1.7-4.3-3.2-4.3-5a2.4 2.4 0 0 1 4.3-1.5A2.4 2.4 0 0 1 16.3 10.4c0 1.8-1.7 3.3-4.3 5Z"
+      />
+    </svg>
+  )
+}
 
 // Single-color face whose expression (frown/neutral/smile) reflects a 1-5
 // mood level. Used for the mood-meter buttons — same shape throughout,

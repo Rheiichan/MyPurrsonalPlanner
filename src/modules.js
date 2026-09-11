@@ -1,12 +1,15 @@
 import {
   IconCalendar, IconMood, IconFeeling, IconBudget, IconRecipes,
   IconFitness, IconSleep, IconSelfcare, IconGrocery, IconProjects, IconTravel, IconNotebook,
+  IconGoals, IconGratitude,
 } from './components/icons'
 
 export const MODULES = [
   { key: 'calendar', label: 'Calendar', Icon: IconCalendar, path: '/calendar', available: true },
   { key: 'mood', label: 'Mood Tracker', Icon: IconMood, path: '/mood', available: true },
-  { key: 'feeling', label: 'How Are You Feeling?', Icon: IconFeeling, path: '/feeling', available: false },
+  { key: 'feeling', label: 'How Are You Feeling?', Icon: IconFeeling, path: '/feeling', available: true },
+  { key: 'goals', label: 'Goals', Icon: IconGoals, path: '/goals', available: true },
+  { key: 'gratitude', label: 'Gratitude Journal', Icon: IconGratitude, path: '/gratitude', available: true },
   { key: 'budget', label: 'Budgeting', Icon: IconBudget, path: '/budget', available: false },
   { key: 'recipes', label: 'Recipes', Icon: IconRecipes, path: '/recipes', available: false },
   { key: 'fitness', label: 'Fitness Tracker', Icon: IconFitness, path: '/fitness', available: false },

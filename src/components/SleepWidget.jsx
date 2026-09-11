@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { computeSleepHours, sleepFeedback } from '../sleep'
+import { computeSleepHours, sleepFeedback, to12Hour } from '../sleep'
 import { IconSleep } from './icons'
+import TimeInput12 from './TimeInput12'
 
 function todayISO() {
   return new Date().toLocaleDateString('en-CA')
+}
+
+function formatTime12(time24) {
+  const { hour12, minute, meridiem } = to12Hour(time24)
+  return `${hour12}:${String(minute).padStart(2, '0')} ${meridiem}`
 }
 
 export default function SleepWidget({ compact = false, onLogged }) {
@@ -80,7 +86,7 @@ export default function SleepWidget({ compact = false, onLogged }) {
       {!loading && todayLog && (
         <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 10 }}>
           Last night: <strong style={{ color: 'var(--ink)' }}>{todayLog.duration_hours}h</strong>{' '}
-          ({todayLog.sleep_time.slice(0, 5)} → {todayLog.wake_time.slice(0, 5)})
+          ({formatTime12(todayLog.sleep_time.slice(0, 5))} → {formatTime12(todayLog.wake_time.slice(0, 5))})
         </p>
       )}
 
@@ -116,12 +122,12 @@ export default function SleepWidget({ compact = false, onLogged }) {
             <h3 style={{ fontSize: 17, marginBottom: 14 }}>Log your sleep</h3>
             <form onSubmit={saveSleep}>
               <div className="field">
-                <label htmlFor="sleepTime">What time did you sleep?</label>
-                <input id="sleepTime" type="time" required value={sleepTime} onChange={(e) => setSleepTime(e.target.value)} />
+                <label>What time did you sleep?</label>
+                <TimeInput12 value={sleepTime} onChange={setSleepTime} />
               </div>
               <div className="field">
-                <label htmlFor="wakeTime">What time did you wake up?</label>
-                <input id="wakeTime" type="time" required value={wakeTime} onChange={(e) => setWakeTime(e.target.value)} />
+                <label>What time did you wake up?</label>
+                <TimeInput12 value={wakeTime} onChange={setWakeTime} />
               </div>
               <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: -6, marginBottom: 16 }}>
                 That's about <strong>{computeSleepHours(sleepTime, wakeTime)}h</strong> of sleep.
