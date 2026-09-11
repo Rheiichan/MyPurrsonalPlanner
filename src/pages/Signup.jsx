@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AuthShell from '../components/AuthShell'
 
 export default function Signup() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
+  const [needsEmailConfirm, setNeedsEmailConfirm] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -23,23 +24,29 @@ export default function Signup() {
       return
     }
     setLoading(true)
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password })
     setLoading(false)
     if (error) {
       setError(error.message)
       return
     }
-    setDone(true)
+    // If email confirmation is off in Supabase, signUp already returns a
+    // live session — the account gate (/pending) picks it up from here.
+    if (data.session) {
+      navigate('/pending')
+      return
+    }
+    setNeedsEmailConfirm(true)
   }
 
-  if (done) {
+  if (needsEmailConfirm) {
     return (
       <AuthShell>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>💌</div>
           <h2 style={{ fontSize: 20, marginBottom: 8 }}>Almost there!</h2>
           <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>
-            We sent a confirmation link to <strong>{email}</strong>. Confirm your email, then log in to set up your planner.
+            We sent a confirmation link to <strong>{email}</strong>. Confirm your email, then log in — after your purchase is confirmed, your planner will unlock.
           </p>
           <Link to="/login" className="btn-primary" style={{ display: 'inline-block', marginTop: 18, textDecoration: 'none' }}>
             Go to login

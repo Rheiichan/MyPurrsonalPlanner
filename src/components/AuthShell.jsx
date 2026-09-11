@@ -1,3 +1,5 @@
+import mascot from '../assets/mascot.png'
+
 export default function AuthShell({ children }) {
   return (
     <div
@@ -12,22 +14,12 @@ export default function AuthShell({ children }) {
     >
       <div style={{ width: '100%', maxWidth: 400 }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div
+          <img
+            src={mascot}
+            alt=""
             aria-hidden
-            style={{
-              width: 64,
-              height: 64,
-              margin: '0 auto 14px',
-              borderRadius: 20,
-              background: 'var(--teal-500)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 30,
-            }}
-          >
-            🐾
-          </div>
+            style={{ width: 72, height: 72, borderRadius: 22, margin: '0 auto 14px', display: 'block' }}
+          />
           <h1 style={{ fontSize: 26 }}>My Purrsonal Planner</h1>
           <p style={{ color: 'var(--ink-soft)', margin: '6px 0 0', fontSize: 14 }}>
             your cozy corner for everything

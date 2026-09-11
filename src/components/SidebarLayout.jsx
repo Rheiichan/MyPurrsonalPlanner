@@ -1,46 +1,48 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import mascot from '../assets/mascot.png'
+import {
+  IconHome, IconCalendar, IconMood, IconFeeling, IconBudget, IconRecipes,
+  IconFitness, IconSleep, IconSelfcare, IconGrocery, IconProjects, IconTravel, IconNotebook,
+} from './icons'
 
 export const MODULES = [
-  { key: 'hub', label: 'Home', icon: '🏠', path: '/hub', available: true },
-  { key: 'calendar', label: 'Calendar', icon: '🗓️', path: '/calendar', available: true },
-  { key: 'mood', label: 'Mood Tracker', icon: '💭', path: '/mood', available: false },
-  { key: 'feeling', label: 'How Are You Feeling?', icon: '🌸', path: '/feeling', available: false },
-  { key: 'budget', label: 'Budgeting', icon: '💰', path: '/budget', available: false },
-  { key: 'recipes', label: 'Recipes', icon: '🍲', path: '/recipes', available: false },
-  { key: 'fitness', label: 'Fitness Tracker', icon: '🏃‍♀️', path: '/fitness', available: false },
-  { key: 'sleep', label: 'Sleep Tracker', icon: '😴', path: '/sleep', available: false },
-  { key: 'selfcare', label: 'Self-Care Challenge', icon: '🧖‍♀️', path: '/selfcare', available: false },
-  { key: 'grocery', label: 'Grocery List', icon: '🛒', path: '/grocery', available: false },
-  { key: 'projects', label: 'Project Planner', icon: '📋', path: '/projects', available: false },
-  { key: 'travel', label: 'Travel Planner', icon: '✈️', path: '/travel', available: false },
-  { key: 'notebooks', label: 'Notebooks', icon: '📓', path: '/notebooks', available: false },
+  { key: 'hub', label: 'Home', Icon: IconHome, path: '/hub', available: true },
+  { key: 'calendar', label: 'Calendar', Icon: IconCalendar, path: '/calendar', available: true },
+  { key: 'mood', label: 'Mood Tracker', Icon: IconMood, path: '/mood', available: false },
+  { key: 'feeling', label: 'How Are You Feeling?', Icon: IconFeeling, path: '/feeling', available: false },
+  { key: 'budget', label: 'Budgeting', Icon: IconBudget, path: '/budget', available: false },
+  { key: 'recipes', label: 'Recipes', Icon: IconRecipes, path: '/recipes', available: false },
+  { key: 'fitness', label: 'Fitness Tracker', Icon: IconFitness, path: '/fitness', available: false },
+  { key: 'sleep', label: 'Sleep Tracker', Icon: IconSleep, path: '/sleep', available: false },
+  { key: 'selfcare', label: 'Self-Care Challenge', Icon: IconSelfcare, path: '/selfcare', available: false },
+  { key: 'grocery', label: 'Grocery List', Icon: IconGrocery, path: '/grocery', available: false },
+  { key: 'projects', label: 'Project Planner', Icon: IconProjects, path: '/projects', available: false },
+  { key: 'travel', label: 'Travel Planner', Icon: IconTravel, path: '/travel', available: false },
+  { key: 'notebooks', label: 'Notebooks', Icon: IconNotebook, path: '/notebooks', available: false },
 ]
 
 export default function SidebarLayout({ children, title }) {
-  const { profile, signOut } = useAuth()
+  const { profile, signOut, isAdmin } = useAuth()
   const location = useLocation()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const sidebarContent = (
     <>
-      <div style={{ textAlign: 'center', padding: '26px 16px 18px' }}>
-        <div
+      <div style={{ textAlign: 'center', padding: '24px 16px 16px' }}>
+        <img
+          src={mascot}
+          alt=""
           aria-hidden
-          style={{
-            width: 52, height: 52, margin: '0 auto 10px', borderRadius: 16,
-            background: 'var(--teal-500)', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', fontSize: 26,
-          }}
-        >
-          🐾
-        </div>
-        <div className="display" style={{ fontSize: 16, color: 'white' }}>My Purrsonal Planner</div>
+          style={{ width: 56, height: 56, borderRadius: 18, margin: '0 auto 10px', display: 'block' }}
+        />
+        <div className="display" style={{ fontSize: 15, color: 'white' }}>My Purrsonal Planner</div>
       </div>
       <nav style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
         {MODULES.map((m) => {
           const active = location.pathname === m.path
+          const Icon = m.Icon
           return (
             <Link
               key={m.key}
@@ -54,7 +56,7 @@ export default function SidebarLayout({ children, title }) {
                 background: active ? 'var(--pink-300)' : 'transparent',
               }}
             >
-              <span style={{ fontSize: 17 }}>{m.icon}</span>
+              <Icon style={{ flexShrink: 0 }} />
               <span style={{ flex: 1 }}>{m.label}</span>
               {!m.available && (
                 <span style={{ fontSize: 10, opacity: 0.75 }}>soon</span>
@@ -62,10 +64,24 @@ export default function SidebarLayout({ children, title }) {
             </Link>
           )
         })}
+        {isAdmin && (
+          <Link
+            to="/admin"
+            onClick={() => setDrawerOpen(false)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '11px 12px', marginTop: 10, borderRadius: 12,
+              textDecoration: 'none', fontSize: 13, fontWeight: 700,
+              color: 'var(--teal-900)', background: 'var(--pink-100)',
+            }}
+          >
+            <span style={{ flex: 1 }}>Admin panel</span>
+          </Link>
+        )}
       </nav>
       <div style={{ padding: 16, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
         <div style={{ color: 'white', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
-          {profile?.name ? `Hi, ${profile.name} 🌷` : 'Welcome!'}
+          {profile?.name ? `Hi, ${profile.name}` : 'Welcome!'}
         </div>
         <button onClick={signOut} className="btn-ghost" style={{ color: 'rgba(255,255,255,0.85)', padding: '4px 0' }}>
           Sign out

@@ -6,6 +6,8 @@ import Setup from './pages/Setup'
 import Hub from './pages/Hub'
 import CalendarPage from './pages/CalendarPage'
 import ComingSoon from './pages/ComingSoon'
+import PendingActivation from './pages/PendingActivation'
+import AdminPanel from './pages/AdminPanel'
 
 function FullScreenLoader() {
   return (
@@ -15,10 +17,14 @@ function FullScreenLoader() {
   )
 }
 
+// Gate that requires: logged in -> account activated by admin -> (optionally) onboarding complete
 function RequireAuth({ children, requireOnboarded = true }) {
-  const { loading, user, profile, profileLoading } = useAuth()
+  const { loading, user, profile, profileLoading, isAdmin } = useAuth()
   if (loading || (user && profileLoading)) return <FullScreenLoader />
   if (!user) return <Navigate to="/login" replace />
+  if (profile && profile.account_status !== 'active' && !isAdmin) {
+    return <Navigate to="/pending" replace />
+  }
   if (requireOnboarded && profile && !profile.onboarding_complete) {
     return <Navigate to="/setup" replace />
   }
@@ -26,10 +32,23 @@ function RequireAuth({ children, requireOnboarded = true }) {
 }
 
 function RedirectIfAuthed({ children }) {
-  const { loading, user, profile, profileLoading } = useAuth()
+  const { loading, user, profile, profileLoading, isAdmin } = useAuth()
   if (loading || (user && profileLoading)) return <FullScreenLoader />
   if (user) {
+    if (profile && profile.account_status !== 'active' && !isAdmin) {
+      return <Navigate to="/pending" replace />
+    }
     return <Navigate to={profile?.onboarding_complete ? '/hub' : '/setup'} replace />
+  }
+  return children
+}
+
+function PendingRoute({ children }) {
+  const { loading, user, profile, profileLoading, isAdmin } = useAuth()
+  if (loading || (user && profileLoading)) return <FullScreenLoader />
+  if (!user) return <Navigate to="/login" replace />
+  if (isAdmin || (profile && profile.account_status === 'active')) {
+    return <Navigate to="/hub" replace />
   }
   return children
 }
@@ -40,6 +59,7 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/hub" replace />} />
       <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
       <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
+      <Route path="/pending" element={<PendingRoute><PendingActivation /></PendingRoute>} />
       <Route
         path="/setup"
         element={
@@ -50,6 +70,7 @@ function AppRoutes() {
       />
       <Route path="/hub" element={<RequireAuth><Hub /></RequireAuth>} />
       <Route path="/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
+      <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>
   )

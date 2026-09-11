@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined) // undefined = loading
   const [profile, setProfile] = useState(null)
   const [profileLoading, setProfileLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -21,6 +22,7 @@ export function AuthProvider({ children }) {
     if (!session) {
       setProfile(null)
       setProfileLoading(false)
+      setIsAdmin(false)
       return
     }
     setProfileLoading(true)
@@ -33,6 +35,12 @@ export function AuthProvider({ children }) {
         setProfile(data)
         setProfileLoading(false)
       })
+    supabase
+      .from('admins')
+      .select('user_id')
+      .eq('user_id', session.user.id)
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data))
   }, [session])
 
   async function refreshProfile() {
@@ -51,7 +59,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, user: session?.user ?? null, profile, profileLoading, refreshProfile, signOut, loading: session === undefined }}
+      value={{ session, user: session?.user ?? null, profile, profileLoading, refreshProfile, signOut, isAdmin, loading: session === undefined }}
     >
       {children}
     </AuthContext.Provider>
