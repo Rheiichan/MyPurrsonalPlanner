@@ -52,7 +52,7 @@ export default function MoodWidget({ compact = false }) {
           {loading ? ' ' : selectedMood ? `Today: feeling ${selectedMood.label.toLowerCase()}` : 'How are you feeling right now?'}
         </p>
       )}
-      <div style={{ display: 'flex', justifyContent: compact ? 'flex-start' : 'space-between', gap: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
         {MOOD_LEVELS.map((m) => {
           const isSelected = todayLog?.mood_level === m.level
           return (
@@ -75,6 +75,17 @@ export default function MoodWidget({ compact = false }) {
           )
         })}
       </div>
+      {selectedMood && (
+        <p
+          style={{
+            textAlign: 'center', fontSize: 13, fontWeight: 700, marginTop: 12, marginBottom: 0,
+            color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+          }}
+        >
+          <span style={{ width: 8, height: 8, borderRadius: 8, background: selectedMood.color, flexShrink: 0 }} />
+          {selectedMood.message}
+        </p>
+      )}
     </div>
   )
 }
