@@ -6,6 +6,7 @@ import { MODULES } from '../modules'
 import mascot from '../assets/mascot.png'
 import { IconCalendar } from '../components/icons'
 import MoodWidget from '../components/MoodWidget'
+import SleepWidget from '../components/SleepWidget'
 
 function todayISO() {
   return new Date().toLocaleDateString('en-CA')
@@ -85,8 +86,19 @@ export default function Hub() {
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: 30, background: 'var(--pink-100)', border: 'none' }}>
-          <MoodWidget compact />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+            gap: 16, marginBottom: 30,
+          }}
+        >
+          <div className="card" style={{ background: 'var(--pink-100)', border: 'none' }}>
+            <MoodWidget compact />
+          </div>
+          <div className="card" style={{ background: 'var(--pink-100)', border: 'none' }}>
+            <SleepWidget compact />
+          </div>
         </div>
 
         <h3 style={{ fontSize: 16, marginBottom: 14, textAlign: 'left' }}>Your planner</h3>

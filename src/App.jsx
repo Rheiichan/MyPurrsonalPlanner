@@ -9,6 +9,7 @@ import ComingSoon from './pages/ComingSoon'
 import PendingActivation from './pages/PendingActivation'
 import AdminPanel from './pages/AdminPanel'
 import MoodTracker from './pages/MoodTracker'
+import SleepTracker from './pages/SleepTracker'
 
 function FullScreenLoader() {
   return (
@@ -72,6 +73,7 @@ function AppRoutes() {
       <Route path="/hub" element={<RequireAuth><Hub /></RequireAuth>} />
       <Route path="/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
       <Route path="/mood" element={<RequireAuth><MoodTracker /></RequireAuth>} />
+      <Route path="/sleep" element={<RequireAuth><SleepTracker /></RequireAuth>} />
       <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>
