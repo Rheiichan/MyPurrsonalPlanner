@@ -7,6 +7,7 @@ const DATA_TABLES = [
   'calendar_events', 'daily_todos', 'mood_logs', 'sleep_logs',
   'goals', 'gratitude_entries', 'achievements', 'diary_entries', 'selfcare_logs', 'user_recipes',
   'grocery_checks', 'grocery_custom_items', 'notebook_pages', 'notebooks',
+  'project_items', 'projects',
 ]
 
 export default function Profile() {
@@ -152,7 +153,7 @@ function DangerZoneCard({ userId }) {
     <div className="card" style={{ border: '1px solid var(--pink-300)' }}>
       <h3 style={{ fontSize: 15, marginBottom: 6, color: 'var(--pink-700)' }}>Danger zone</h3>
       <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
-        Permanently clears your calendar events, to-dos, mood and sleep logs, goals, gratitude entries, achievements, secret diary entries, self-care challenge progress, saved recipes, grocery list, and notebooks (notebooks will reset to 5 blank ones next time you open them). Your account, PIN, and profile details stay as they are.
+        Permanently clears your calendar events, to-dos, mood and sleep logs, goals, gratitude entries, achievements, secret diary entries, self-care challenge progress, saved recipes, grocery list, notebooks (notebooks will reset to 5 blank ones next time you open them), and projects. Your account, PIN, and profile details stay as they are.
       </p>
       {!confirming ? (
         <button className="btn-secondary" onClick={() => setConfirming(true)}>Reset my data</button>

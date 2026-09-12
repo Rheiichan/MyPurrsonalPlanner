@@ -21,6 +21,8 @@ import FitnessTracker from './pages/FitnessTracker'
 import GroceryList from './pages/GroceryList'
 import NotebooksList from './pages/NotebooksList'
 import NotebookDetail from './pages/NotebookDetail'
+import ProjectPlanner from './pages/ProjectPlanner'
+import ProjectDetail from './pages/ProjectDetail'
 
 function FullScreenLoader() {
   return (
@@ -96,6 +98,8 @@ function AppRoutes() {
       <Route path="/grocery" element={<RequireAuth><GroceryList /></RequireAuth>} />
       <Route path="/notebooks" element={<RequireAuth><NotebooksList /></RequireAuth>} />
       <Route path="/notebooks/:slot" element={<RequireAuth><NotebookDetail /></RequireAuth>} />
+      <Route path="/projects" element={<RequireAuth><ProjectPlanner /></RequireAuth>} />
+      <Route path="/projects/:id" element={<RequireAuth><ProjectDetail /></RequireAuth>} />
       <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>

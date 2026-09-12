@@ -17,7 +17,7 @@ export const MODULES = [
   { key: 'sleep', label: 'Sleep Tracker', Icon: IconSleep, path: '/sleep', available: true },
   { key: 'selfcare', label: 'Self-Care Challenge', Icon: IconSelfcare, path: '/selfcare', available: true },
   { key: 'grocery', label: 'Grocery List', Icon: IconGrocery, path: '/grocery', available: true },
-  { key: 'projects', label: 'Project Planner', Icon: IconProjects, path: '/projects', available: false },
+  { key: 'projects', label: 'Project Planner', Icon: IconProjects, path: '/projects', available: true },
   { key: 'travel', label: 'Travel Planner', Icon: IconTravel, path: '/travel', available: false },
   { key: 'notebooks', label: 'Notebooks', Icon: IconNotebook, path: '/notebooks', available: true },
 ]
