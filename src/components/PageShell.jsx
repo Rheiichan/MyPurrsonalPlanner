@@ -16,7 +16,9 @@ export default function PageShell({ children, title }) {
       >
         <Link to="/hub" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <img src={mascot} alt="" aria-hidden style={{ width: 34, height: 34, borderRadius: 10 }} />
-          <span className="display" style={{ fontSize: 15, color: 'white' }}>{title}</span>
+          <span className="display" style={{ fontSize: 15, color: 'white', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <IconHome style={{ color: 'inherit' }} /> Home
+          </span>
         </Link>
         <div style={{ flex: 1 }} />
         {isAdmin && (
@@ -30,13 +32,6 @@ export default function PageShell({ children, title }) {
           style={{ color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700 }}
         >
           <IconProfile style={{ color: 'inherit' }} /> My Profile
-        </Link>
-        <Link
-          to="/hub"
-          className="btn-ghost"
-          style={{ color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700 }}
-        >
-          <IconHome style={{ color: 'inherit' }} /> Home
         </Link>
         <button onClick={signOut} className="btn-ghost" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>
           Sign out
