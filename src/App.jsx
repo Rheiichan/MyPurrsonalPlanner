@@ -16,6 +16,8 @@ import GratitudeJournal from './pages/GratitudeJournal'
 import SecretDiary from './pages/SecretDiary'
 import Profile from './pages/Profile'
 import SelfCareChallenge from './pages/SelfCareChallenge'
+import Recipes from './pages/Recipes'
+import FitnessTracker from './pages/FitnessTracker'
 
 function FullScreenLoader() {
   return (
@@ -86,6 +88,8 @@ function AppRoutes() {
       <Route path="/secret-diary" element={<RequireAuth><SecretDiary /></RequireAuth>} />
       <Route path="/profile" element={<RequireAuth requireOnboarded={false}><Profile /></RequireAuth>} />
       <Route path="/selfcare" element={<RequireAuth><SelfCareChallenge /></RequireAuth>} />
+      <Route path="/recipes" element={<RequireAuth><Recipes /></RequireAuth>} />
+      <Route path="/fitness" element={<RequireAuth><FitnessTracker /></RequireAuth>} />
       <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>

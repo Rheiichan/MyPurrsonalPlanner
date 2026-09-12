@@ -20,10 +20,12 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 - Gratitude Journal — two tabs: Gratitude (daily "I'm grateful for…" entries) and Achievements (a running list of wins to look back on)
 - Secret Diary — a PIN-protected free-form journal with a notebook-paper look (ruled lines, margin line, spiral holes, handwriting-style font), a Change PIN flow, and expandable entry cards showing exact date/time; admins can reset a forgotten PIN back to 0000 from the Admin panel, without ever seeing the actual PIN (only a hash is stored)
 - Self-Care Challenge — the 30-day checklist as pastel cards, tracked per calendar month (resets automatically each month), with a running "X/30 completed" count and a history list of past months (e.g. "August 2026 — 14/30 completed")
+- Recipes — folder-style tabs (Create your Recipe / Your Saved Recipes / Default Recipes): create and save your own recipes (yield, ingredients, procedure, notes), edit/delete/open-as-PDF any saved recipe (PDF opens in a new tab, never auto-downloads or prints), and browse the full CaloRhythm recipe library (60 recipes across 10 diet categories: Keto, Low Carb, Carnivore, Clean Eating, IF Only, Pescatarian, Diabetic-Friendly, Low Sodium, Calorie Deficit, TTC) with a "save a copy for myself" button
+- Fitness Tracker — modeled on CaloRhythm but with no fasting features. One-time setup (sex, activity level, diet mode, maintain-or-target-weight goal) then a dashboard showing BMI, TDEE/maintenance calories, ideal weight estimate, a recommended daily calorie target (deficit/surplus/maintenance based on BMI and goal), an estimated time-to-goal in weeks/months, an expandable "About this diet mode" explainer (purpose, what to expect, risks, macros — sourced from CaloRhythm), a link to Recipes, and a list of suggested exercises for the chosen diet mode (also sourced from CaloRhythm)
 - My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary, self-care) while keeping your account and profile
 
 ## Modules still to build
-Budgeting, Recipes, Fitness Tracker, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
+Budgeting, Fitness Tracker, Grocery List, Project Planner, Travel Planner, 5 customizable Notebooks.
 
 ## Paid access / admin
 
@@ -55,6 +57,8 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
    - `supabase/005_goals_gratitude.sql` — adds `goals`, `gratitude_entries`, and `achievements` tables, used by Goals, Gratitude Journal, and the "How Are You Feeling?" flow.
    - `supabase/006_secret_diary.sql` — enables the `pgcrypto` extension, adds `diary_pins` (PIN hashes only, never plain text) and `diary_entries` tables, and the `admin_reset_diary_pin` RPC.
    - `supabase/007_selfcare_challenge.sql` — adds `selfcare_logs` (one row per completed day per month) for the 30-Day Self-Care Challenge.
+   - `supabase/008_recipes.sql` — adds `user_recipes` for the "Create your Recipe" / "Your Saved Recipes" tabs. The "Default Recipes" tab is static app data (`src/defaultRecipes.js`), not a database table — now populated with the full CaloRhythm recipe library (60 recipes across Keto, Low Carb, Carnivore, Clean Eating, IF Only, Pescatarian, Diabetic-Friendly, Low Sodium, Calorie Deficit, and TTC), including per-serving calories/macros and prep time in the notes.
+   - `supabase/009_fitness_tracker.sql` — adds `sex`, `activity_level`, `diet_category`, `target_weight_kg`, and `fitness_setup_complete` columns to `profiles` for the Fitness Tracker. Diet mode metadata/descriptions/exercises live in `src/dietData.js` (static, sourced from CaloRhythm, fasting mode excluded); the BMI/TDEE/goal-timeline formulas are in `src/fitnessMath.js` (same math CaloRhythm uses: Mifflin-St Jeor for TDEE, Devine formula for ideal weight).
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.
 
