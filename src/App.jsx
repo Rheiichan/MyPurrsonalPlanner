@@ -19,6 +19,8 @@ import SelfCareChallenge from './pages/SelfCareChallenge'
 import Recipes from './pages/Recipes'
 import FitnessTracker from './pages/FitnessTracker'
 import GroceryList from './pages/GroceryList'
+import NotebooksList from './pages/NotebooksList'
+import NotebookDetail from './pages/NotebookDetail'
 
 function FullScreenLoader() {
   return (
@@ -92,6 +94,8 @@ function AppRoutes() {
       <Route path="/recipes" element={<RequireAuth><Recipes /></RequireAuth>} />
       <Route path="/fitness" element={<RequireAuth><FitnessTracker /></RequireAuth>} />
       <Route path="/grocery" element={<RequireAuth><GroceryList /></RequireAuth>} />
+      <Route path="/notebooks" element={<RequireAuth><NotebooksList /></RequireAuth>} />
+      <Route path="/notebooks/:slot" element={<RequireAuth><NotebookDetail /></RequireAuth>} />
       <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>

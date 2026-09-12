@@ -19,5 +19,5 @@ export const MODULES = [
   { key: 'grocery', label: 'Grocery List', Icon: IconGrocery, path: '/grocery', available: true },
   { key: 'projects', label: 'Project Planner', Icon: IconProjects, path: '/projects', available: false },
   { key: 'travel', label: 'Travel Planner', Icon: IconTravel, path: '/travel', available: false },
-  { key: 'notebooks', label: 'Notebooks', Icon: IconNotebook, path: '/notebooks', available: false },
+  { key: 'notebooks', label: 'Notebooks', Icon: IconNotebook, path: '/notebooks', available: true },
 ]
