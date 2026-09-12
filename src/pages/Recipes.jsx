@@ -8,8 +8,8 @@ import { openRecipePdf } from '../recipePdf'
 import { DEFAULT_RECIPES, DEFAULT_RECIPE_CATEGORIES } from '../defaultRecipes'
 
 const TABS = [
-  { key: 'create', label: 'Create your Recipe' },
-  { key: 'saved', label: 'Your Saved Recipes' },
+  { key: 'create', label: 'Create Recipe' },
+  { key: 'saved', label: 'Saved Recipes' },
   { key: 'default', label: 'Default Recipes' },
 ]
 
@@ -44,7 +44,7 @@ function CreateTab({ onSaved }) {
 
   return (
     <div>
-      <h3 style={{ fontSize: 15, marginBottom: 4 }}>Create your Recipe</h3>
+      <h3 style={{ fontSize: 15, marginBottom: 4 }}>Create Recipe</h3>
       <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 16 }}>
         Fill this in and save it to your own recipe collection.
       </p>
@@ -88,7 +88,7 @@ function SavedTab() {
 
   if (loading) return <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>Loading…</p>
   if (recipes.length === 0) {
-    return <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>No recipes saved yet — add one from the "Create your Recipe" tab.</p>
+    return <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>No recipes saved yet — add one from the "Create Recipe" tab.</p>
   }
 
   return (
@@ -167,7 +167,7 @@ function DefaultTab() {
       procedure: recipe.procedure,
       notes: recipe.notes,
     })
-    setSavedMsg(`"${recipe.title}" added to Your Saved Recipes.`)
+    setSavedMsg(`"${recipe.title}" added to Saved Recipes.`)
     setTimeout(() => setSavedMsg(''), 3000)
   }
 
