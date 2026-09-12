@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import RecipeForm from '../components/RecipeForm'
+import FolderTabs from '../components/FolderTabs'
 import { openRecipePdf } from '../recipePdf'
 import { DEFAULT_RECIPES, DEFAULT_RECIPE_CATEGORIES } from '../defaultRecipes'
 
@@ -19,41 +20,11 @@ export default function Recipes() {
     <PageShell title="Recipes">
       <h1 style={{ fontSize: 22, marginBottom: 18 }}>Recipes</h1>
 
-      {/* Folder-style tabs */}
-      <div style={{ display: 'flex', gap: 4 }}>
-        {TABS.map((t) => {
-          const active = tab === t.key
-          return (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              style={{
-                padding: '11px 18px',
-                borderRadius: '12px 12px 0 0',
-                border: '1px solid var(--pink-300)',
-                borderBottom: active ? '1px solid white' : '1px solid var(--pink-300)',
-                background: active ? 'white' : 'var(--pink-100)',
-                color: active ? 'var(--ink)' : 'var(--pink-700)',
-                fontWeight: 700, fontSize: 13,
-                position: 'relative', top: 1, zIndex: active ? 2 : 1,
-                cursor: 'pointer',
-              }}
-            >
-              {t.label}
-            </button>
-          )
-        })}
-      </div>
-      <div
-        style={{
-          background: 'white', border: '1px solid var(--pink-300)', borderRadius: '0 12px 12px 12px',
-          padding: 20, position: 'relative', zIndex: 1, marginBottom: 20,
-        }}
-      >
+      <FolderTabs tabs={TABS} active={tab} onChange={setTab} scrollable>
         {tab === 'create' && <CreateTab onSaved={() => setTab('saved')} />}
         {tab === 'saved' && <SavedTab />}
         {tab === 'default' && <DefaultTab />}
-      </div>
+      </FolderTabs>
     </PageShell>
   )
 }
@@ -185,6 +156,7 @@ function DefaultTab() {
   const [savedMsg, setSavedMsg] = useState('')
 
   const shown = category === 'All' ? DEFAULT_RECIPES : DEFAULT_RECIPES.filter((r) => r.category === category)
+  const categoryTabs = ['All', ...DEFAULT_RECIPE_CATEGORIES].map((c) => ({ key: c, label: c }))
 
   async function saveACopy(recipe) {
     await supabase.from('user_recipes').insert({
@@ -201,60 +173,50 @@ function DefaultTab() {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {['All', ...DEFAULT_RECIPE_CATEGORIES].map((c) => (
-          <button
-            key={c}
-            onClick={() => setCategory(c)}
-            className={category === c ? 'btn-primary' : 'btn-secondary'}
-            style={{ padding: '6px 14px', fontSize: 12.5 }}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-      {savedMsg && <p style={{ color: 'var(--teal-700)', fontSize: 13, marginBottom: 12 }}>{savedMsg}</p>}
+      <FolderTabs tabs={categoryTabs} active={category} onChange={setCategory} size="sm" scrollable>
+        {savedMsg && <p style={{ color: 'var(--teal-700)', fontSize: 13, marginBottom: 12 }}>{savedMsg}</p>}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {shown.map((r) => {
-          const expanded = expandedId === r.id
-          return (
-            <div key={r.id} className="card" style={{ border: '1px solid var(--teal-100)', boxShadow: 'none' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }} onClick={() => setExpandedId(expanded ? null : r.id)}>
-                <div>
-                  <span className="pill" style={{ background: 'var(--teal-100)', color: 'var(--teal-700)', marginBottom: 4, display: 'inline-block' }}>{r.category}</span>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>{r.title}</div>
-                  {r.yield_text && <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>Yield: {r.yield_text}</div>}
-                </div>
-                <span style={{ fontSize: 12, color: 'var(--teal-700)', fontWeight: 700, flexShrink: 0 }}>{expanded ? 'Collapse ▲' : 'View ▾'}</span>
-              </div>
-
-              {expanded && (
-                <div style={{ marginTop: 12 }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Ingredients</p>
-                  <ul style={{ fontSize: 13, margin: '0 0 10px', paddingLeft: 18 }}>
-                    {r.ingredients.split('\n').map((line, i) => <li key={i}>{line}</li>)}
-                  </ul>
-                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Procedure</p>
-                  <ol style={{ fontSize: 13, margin: '0 0 10px', paddingLeft: 18 }}>
-                    {r.procedure.split('\n').map((line, i) => <li key={i}>{line}</li>)}
-                  </ol>
-                  {r.notes && (
-                    <>
-                      <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Notes</p>
-                      <p style={{ fontSize: 13, marginBottom: 10 }}>{r.notes}</p>
-                    </>
-                  )}
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="btn-secondary" style={{ fontSize: 12, padding: '6px 12px' }} onClick={() => saveACopy(r)}>Save a copy for myself</button>
-                    <button className="btn-ghost" style={{ fontSize: 12 }} onClick={() => openRecipePdf(r)}>Open PDF</button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {shown.map((r) => {
+            const expanded = expandedId === r.id
+            return (
+              <div key={r.id} className="card" style={{ border: '1px solid var(--teal-100)', boxShadow: 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }} onClick={() => setExpandedId(expanded ? null : r.id)}>
+                  <div>
+                    <span className="pill" style={{ background: 'var(--teal-100)', color: 'var(--teal-700)', marginBottom: 4, display: 'inline-block' }}>{r.category}</span>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{r.title}</div>
+                    {r.yield_text && <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>Yield: {r.yield_text}</div>}
                   </div>
+                  <span style={{ fontSize: 12, color: 'var(--teal-700)', fontWeight: 700, flexShrink: 0 }}>{expanded ? 'Collapse ▲' : 'View ▾'}</span>
                 </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
+
+                {expanded && (
+                  <div style={{ marginTop: 12 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Ingredients</p>
+                    <ul style={{ fontSize: 13, margin: '0 0 10px', paddingLeft: 18 }}>
+                      {r.ingredients.split('\n').map((line, i) => <li key={i}>{line}</li>)}
+                    </ul>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Procedure</p>
+                    <ol style={{ fontSize: 13, margin: '0 0 10px', paddingLeft: 18 }}>
+                      {r.procedure.split('\n').map((line, i) => <li key={i}>{line}</li>)}
+                    </ol>
+                    {r.notes && (
+                      <>
+                        <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Notes</p>
+                        <p style={{ fontSize: 13, marginBottom: 10 }}>{r.notes}</p>
+                      </>
+                    )}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn-secondary" style={{ fontSize: 12, padding: '6px 12px' }} onClick={() => saveACopy(r)}>Save a copy for myself</button>
+                      <button className="btn-ghost" style={{ fontSize: 12 }} onClick={() => openRecipePdf(r)}>Open PDF</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </FolderTabs>
     </div>
   )
 }

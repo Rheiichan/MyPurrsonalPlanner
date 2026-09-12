@@ -7,6 +7,7 @@ import mascot from '../assets/mascot.png'
 import { IconCalendar } from '../components/icons'
 import MoodWidget from '../components/MoodWidget'
 import SleepWidget from '../components/SleepWidget'
+import { buildLifeSummary } from '../lifeSummary'
 
 function todayISO() {
   return new Date().toLocaleDateString('en-CA')
@@ -16,6 +17,7 @@ export default function Hub() {
   const { profile, user, signOut, isAdmin } = useAuth()
   const [todayEvents, setTodayEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [lifeSummary, setLifeSummary] = useState(null)
 
   useEffect(() => {
     if (!user) return
@@ -30,6 +32,22 @@ export default function Hub() {
         setLoading(false)
       })
   }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    Promise.all([
+      supabase.from('mood_logs').select('mood_level').eq('user_id', user.id).order('log_date', { ascending: false }).limit(7),
+      supabase.from('sleep_logs').select('duration_hours').eq('user_id', user.id).order('log_date', { ascending: false }).limit(7),
+    ]).then(([moodRes, sleepRes]) => {
+      setLifeSummary(
+        buildLifeSummary({
+          moodLogs: moodRes.data || [],
+          sleepLogs: sleepRes.data || [],
+          dietCategory: profile?.diet_category,
+        })
+      )
+    })
+  }, [user, profile?.diet_category])
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
@@ -55,9 +73,14 @@ export default function Hub() {
         <h1 style={{ fontSize: 26 }}>
           {greeting}{profile?.name ? `, ${profile.name}` : ''}
         </h1>
-        <p style={{ color: 'var(--ink-soft)', marginTop: 4, marginBottom: 26 }}>
+        <p style={{ color: 'var(--ink-soft)', marginTop: 4, marginBottom: lifeSummary ? 6 : 26 }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
+        {lifeSummary && (
+          <p style={{ color: 'var(--teal-700)', fontSize: 13.5, fontWeight: 700, marginBottom: 26 }}>
+            {lifeSummary}
+          </p>
+        )}
 
         <div className="card" style={{ marginBottom: 30, background: 'var(--teal-100)', border: 'none', textAlign: 'left' }}>
           <h3 style={{ fontSize: 16, marginBottom: 10 }}>Today's schedule</h3>

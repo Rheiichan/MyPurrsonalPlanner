@@ -6,6 +6,7 @@ import PageShell from '../components/PageShell'
 const DATA_TABLES = [
   'calendar_events', 'daily_todos', 'mood_logs', 'sleep_logs',
   'goals', 'gratitude_entries', 'achievements', 'diary_entries', 'selfcare_logs', 'user_recipes',
+  'grocery_checks', 'grocery_custom_items',
 ]
 
 export default function Profile() {

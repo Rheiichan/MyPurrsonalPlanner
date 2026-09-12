@@ -3,6 +3,12 @@ import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
+import FolderTabs from '../components/FolderTabs'
+
+const TABS = [
+  { key: 'gratitude', label: 'Gratitude' },
+  { key: 'achievements', label: 'Achievements' },
+]
 
 export default function GratitudeJournal() {
   const { user } = useAuth()
@@ -18,28 +24,13 @@ export default function GratitudeJournal() {
   return (
     <PageShell title="Gratitude Journal">
       <h1 style={{ fontSize: 22, marginBottom: 4 }}>Gratitude Journal</h1>
-      <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
+      <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 18 }}>
         A place to focus on the present, and remember what you've already overcome.
       </p>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
-        <button
-          onClick={() => switchTab('gratitude')}
-          className={tab === 'gratitude' ? 'btn-primary' : 'btn-secondary'}
-          style={{ padding: '8px 16px', fontSize: 13 }}
-        >
-          Gratitude
-        </button>
-        <button
-          onClick={() => switchTab('achievements')}
-          className={tab === 'achievements' ? 'btn-primary' : 'btn-secondary'}
-          style={{ padding: '8px 16px', fontSize: 13 }}
-        >
-          Achievements
-        </button>
-      </div>
-
-      {tab === 'gratitude' ? <GratitudeTab user={user} /> : <AchievementsTab user={user} />}
+      <FolderTabs tabs={TABS} active={tab} onChange={switchTab}>
+        {tab === 'gratitude' ? <GratitudeTab user={user} /> : <AchievementsTab user={user} />}
+      </FolderTabs>
     </PageShell>
   )
 }
