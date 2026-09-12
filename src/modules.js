@@ -18,6 +18,6 @@ export const MODULES = [
   { key: 'selfcare', label: 'Self-Care Challenge', Icon: IconSelfcare, path: '/selfcare', available: true },
   { key: 'grocery', label: 'Grocery List', Icon: IconGrocery, path: '/grocery', available: true },
   { key: 'projects', label: 'Project Planner', Icon: IconProjects, path: '/projects', available: true },
-  { key: 'travel', label: 'Travel Planner', Icon: IconTravel, path: '/travel', available: false },
+  { key: 'travel', label: 'Travel Planner', Icon: IconTravel, path: '/travel', available: true },
   { key: 'notebooks', label: 'Notebooks', Icon: IconNotebook, path: '/notebooks', available: true },
 ]

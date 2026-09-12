@@ -25,11 +25,12 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 - Grocery List — folder tabs: Preloaded List (auto-populated from your Fitness Tracker diet mode, sourced from CaloRhythm's per-diet grocery lists, with checkboxes) and Custom (add your own items, also checkable)
 - Notebooks — 5 notebooks that look like actual notebook covers (colored, with a spine and binding rings), each renamable and recolorable from a 6-color palette. Open one to see its pages as folder tabs (starts with 5 pages, add more up to 25, rename or delete any page, each page is a free-write textarea with an explicit Save)
 - Project Planner — "+ New Project" (name + optional target date), then each project has three independent checklists capped at 15 items each: Strategy/Ideas, Checklist, and Required Materials — every item is checkable, addable, and removable
-- My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary, self-care, recipes, grocery, notebooks, projects) while keeping your account and profile
+- Travel Planner — "+ New Trip" (destination, trip type: International/Local/Daytime, and a date range — or a single date for daytime); day count is computed automatically. Each trip has a per-day itinerary (folder tabs, one per day, unlimited checklist items) and a "Things to Bring" checklist that auto-populates based on trip type — International adds Passport/Travel Insurance/Valid IDs/Vouchers/Business Documents; International or Local adds quantity-aware items (Underwear and Day outfit sized to the day count, Sleepwear sized to the night count) plus toiletries/electronics/comfort items; every trip type gets Medicines, Powerbank, Cash, and Cards. Every auto-populated item can be removed, and the user can add as many of their own as they want
+- My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary, self-care, recipes, grocery, notebooks, projects, trips) while keeping your account and profile
 - Hub — below the date, a one-line life summary combining your recent average mood, recent average sleep, and current diet mode (e.g. "You're mostly happy, you're having good sleep, and you're in TTC diet mode") — only shows the parts you actually have data for
 
 ## Modules still to build
-Budgeting, Travel Planner.
+Budgeting.
 
 ## Paid access / admin
 
@@ -66,6 +67,7 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
    - `supabase/010_grocery_list.sql` — adds `grocery_checks` (which preloaded items a user has checked, per diet mode) and `grocery_custom_items` (the user's own added items). The preloaded lists themselves are static data in `src/groceryData.js`, sourced from CaloRhythm.
    - `supabase/011_notebooks.sql` — adds `notebooks` (5 fixed slots per user, name + color) and `notebook_pages` (up to 25 per notebook). Both auto-populate with sensible defaults the first time a user opens Notebooks / a specific notebook.
    - `supabase/012_project_planner.sql` — adds `projects` (name + target date) and `project_items` (checklist items, capped at 15 per section per project — Strategy/Ideas, Checklist, Required Materials).
+   - `supabase/013_travel_planner.sql` — adds `trips`, `trip_itinerary_items` (per-day checklist, unlimited), and `trip_packing_items` (the "Things to Bring" checklist, unlimited, auto-seeded at trip creation based on trip type — see `src/travel.js` for the exact rules).
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.
 
