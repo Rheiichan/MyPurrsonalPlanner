@@ -25,6 +25,7 @@ import ProjectPlanner from './pages/ProjectPlanner'
 import ProjectDetail from './pages/ProjectDetail'
 import TravelPlanner from './pages/TravelPlanner'
 import TripDetail from './pages/TripDetail'
+import Budgeting from './pages/Budgeting'
 
 function FullScreenLoader() {
   return (
@@ -104,6 +105,7 @@ function AppRoutes() {
       <Route path="/projects/:id" element={<RequireAuth><ProjectDetail /></RequireAuth>} />
       <Route path="/travel" element={<RequireAuth><TravelPlanner /></RequireAuth>} />
       <Route path="/travel/:id" element={<RequireAuth><TripDetail /></RequireAuth>} />
+      <Route path="/budget" element={<RequireAuth><Budgeting /></RequireAuth>} />
       <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>

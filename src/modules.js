@@ -11,7 +11,7 @@ export const MODULES = [
   { key: 'goals', label: 'Goals', Icon: IconGoals, path: '/goals', available: true },
   { key: 'gratitude', label: 'Gratitude Journal', Icon: IconGratitude, path: '/gratitude', available: true },
   { key: 'secret-diary', label: 'Secret Diary', Icon: IconLock, path: '/secret-diary', available: true },
-  { key: 'budget', label: 'Budgeting', Icon: IconBudget, path: '/budget', available: false },
+  { key: 'budget', label: 'Budgeting', Icon: IconBudget, path: '/budget', available: true },
   { key: 'recipes', label: 'Recipes', Icon: IconRecipes, path: '/recipes', available: true },
   { key: 'fitness', label: 'Fitness Tracker', Icon: IconFitness, path: '/fitness', available: true },
   { key: 'sleep', label: 'Sleep Tracker', Icon: IconSleep, path: '/sleep', available: true },
