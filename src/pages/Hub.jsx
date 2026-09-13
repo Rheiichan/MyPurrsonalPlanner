@@ -8,6 +8,7 @@ import { IconCalendar } from '../components/icons'
 import MoodWidget from '../components/MoodWidget'
 import SleepWidget from '../components/SleepWidget'
 import { buildLifeSummary } from '../lifeSummary'
+import QuickTodoWidget from '../components/QuickTodoWidget'
 
 function todayISO() {
   return new Date().toLocaleDateString('en-CA')
@@ -110,6 +111,10 @@ export default function Hub() {
               <IconCalendar /> View my Calendar
             </Link>
           </div>
+        </div>
+
+        <div className="card" style={{ marginBottom: 30, background: 'var(--pink-100)', border: 'none', textAlign: 'left' }}>
+          <QuickTodoWidget />
         </div>
 
         <div

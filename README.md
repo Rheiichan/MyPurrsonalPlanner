@@ -8,6 +8,10 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 - Deploy target: Vercel
 - Installable as an app on iOS / Android / desktop (PWA manifest + service worker already wired up)
 
+## Offline support
+
+The app is a PWA, so the app shell (all the code, styling, and icons) already works with no connection. On top of that, read (GET) requests to Supabase are cached on-device — so whatever data was last loaded (today's calendar, recent mood/sleep logs, notebook pages, etc.) stays viewable offline, with a small banner letting the person know they're viewing saved data. Adding or editing anything still requires a connection — writes are never cached, so they fail honestly (no silent data loss) rather than appearing to save. This is read-only offline support, not full offline editing with sync.
+
 ## What's built so far
 - Signup / login (Supabase email auth)
 - Onboarding wizard: name, birthday, height, weight (optional) → BMI category + suggested healthy weight range + diet focus (lose/maintain/gain)
@@ -28,7 +32,7 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 - Travel Planner — "+ New Trip" (destination, trip type: International/Local/Daytime, and a date range — or a single date for daytime); day count is computed automatically. Each trip has a per-day itinerary (folder tabs, one per day, unlimited checklist items) and a "Things to Bring" checklist that auto-populates based on trip type — International adds Passport/Travel Insurance/Valid IDs/Vouchers/Business Documents; International or Local adds quantity-aware items (Underwear and Day outfit sized to the day count, Sleepwear sized to the night count) plus toiletries/electronics/comfort items; every trip type gets Medicines, Powerbank, Cash, and Cards. Every auto-populated item can be removed, and the user can add as many of their own as they want
 - Budgeting — modeled on PreFundr's income-first approach, as 4 folder tabs: **Add Incomes** (source, type, amount, date), **Add Expenses** (name, category, amount, due date, bank, with a "make this recurring" checkbox that auto-generates next month's instance each time the page loads), **Savings** (shows "available to save this month" — income minus expenses minus already-saved — then lets you log Personal Savings / Sinking Fund / Emergency Fund entries with a bank/wallet field), and **Info** (expandable explainers: how income-first budgeting works, sinking vs. emergency funds, debt snowball, debt avalanche, and giving yourself a reward)
 - My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary, self-care, recipes, grocery, notebooks, projects, trips, budgeting) while keeping your account and profile
-- Hub — below the date, a one-line life summary combining your recent average mood, recent average sleep, and current diet mode (e.g. "You're mostly happy, you're having good sleep, and you're in TTC diet mode") — only shows the parts you actually have data for
+- Hub — below the date, a one-line life summary combining your recent average mood, recent average sleep, and current diet mode (e.g. "You're mostly happy, you're having good sleep, and you're in TTC diet mode") — only shows the parts you actually have data for. Below Today's schedule, a **Quick To-Do** list — add something fast, check it off, and it's deleted immediately (separate from the Calendar's dated to-dos, which stick around with a strikethrough instead)
 
 All 16 originally-planned modules are now built.
 
@@ -69,6 +73,7 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
    - `supabase/012_project_planner.sql` — adds `projects` (name + target date) and `project_items` (checklist items, capped at 15 per section per project — Strategy/Ideas, Checklist, Required Materials).
    - `supabase/013_travel_planner.sql` — adds `trips`, `trip_itinerary_items` (per-day checklist, unlimited), and `trip_packing_items` (the "Things to Bring" checklist, unlimited, auto-seeded at trip creation based on trip type — see `src/travel.js` for the exact rules).
    - `supabase/014_budgeting.sql` — adds `budget_incomes`, `budget_expenses` (with `is_recurring` — the app auto-generates each missing month's instance client-side, see `src/budgeting.js`), and `budget_savings` (Personal/Sinking/Emergency, each with a bank field).
+   - `supabase/015_quick_todos.sql` — adds `quick_todos` for the Hub's Quick To-Do widget (checking an item off deletes it, unlike the Calendar's dated to-dos).
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.
 
