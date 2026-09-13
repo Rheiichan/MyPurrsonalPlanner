@@ -102,7 +102,7 @@ returns table (
   todo_count bigint
 ) as $$
 begin
-  if not exists (select 1 from admins where user_id = auth.uid()) then
+  if not exists (select 1 from admins a where a.user_id = auth.uid()) then
     raise exception 'Not authorized';
   end if;
   return query
