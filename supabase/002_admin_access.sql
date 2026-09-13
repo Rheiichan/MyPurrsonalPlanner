@@ -107,14 +107,14 @@ begin
   end if;
   return query
     select
-      p.id,
-      u.email,
-      p.name,
-      p.account_status,
-      p.created_at,
-      p.activated_at,
-      coalesce(ce.cnt, 0),
-      coalesce(dt.cnt, 0)
+      p.id::uuid,
+      u.email::text,
+      p.name::text,
+      p.account_status::text,
+      p.created_at::timestamptz,
+      p.activated_at::timestamptz,
+      coalesce(ce.cnt, 0)::bigint,
+      coalesce(dt.cnt, 0)::bigint
     from profiles p
     join auth.users u on u.id = p.id
     left join (select ce.user_id, count(*) cnt from calendar_events ce group by ce.user_id) ce on ce.user_id = p.id
