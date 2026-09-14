@@ -8,7 +8,7 @@ const DATA_TABLES = [
   'goals', 'gratitude_entries', 'achievements', 'diary_entries', 'selfcare_logs', 'user_recipes',
   'grocery_checks', 'grocery_custom_items', 'notebook_pages', 'notebooks',
   'project_items', 'projects', 'trip_itinerary_items', 'trip_packing_items', 'trips',
-  'budget_incomes', 'budget_expenses', 'budget_savings', 'quick_todos',
+  'budget_incomes', 'budget_expenses', 'budget_savings', 'budget_allocations', 'quick_todos',
 ]
 
 export default function Profile() {

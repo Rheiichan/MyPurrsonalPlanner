@@ -11,7 +11,9 @@ import {
 const TABS = [
   { key: 'incomes', label: 'Add Incomes' },
   { key: 'expenses', label: 'Add Expenses' },
+  { key: 'allocate', label: 'Allocate' },
   { key: 'savings', label: 'Savings' },
+  { key: 'summary', label: 'Summary' },
   { key: 'info', label: 'Info' },
 ]
 
@@ -25,14 +27,16 @@ export default function Budgeting() {
   const [incomes, setIncomes] = useState([])
   const [expenses, setExpenses] = useState([])
   const [savings, setSavings] = useState([])
+  const [allocations, setAllocations] = useState([])
   const [loading, setLoading] = useState(true)
 
   async function loadAll() {
     setLoading(true)
-    const [{ data: inc }, { data: exp }, { data: sav }] = await Promise.all([
+    const [{ data: inc }, { data: exp }, { data: sav }, { data: allocs }] = await Promise.all([
       supabase.from('budget_incomes').select('*').eq('user_id', user.id).order('income_date', { ascending: false }),
       supabase.from('budget_expenses').select('*').eq('user_id', user.id).order('due_date', { ascending: false }),
       supabase.from('budget_savings').select('*').eq('user_id', user.id).order('saved_date', { ascending: false }),
+      supabase.from('budget_allocations').select('*').eq('user_id', user.id),
     ])
     let expenseList = exp || []
     const created = await rollForwardRecurringExpenses(user.id, expenseList)
@@ -41,6 +45,7 @@ export default function Budgeting() {
     setIncomes(inc || [])
     setExpenses(expenseList)
     setSavings(sav || [])
+    setAllocations(allocs || [])
     setLoading(false)
   }
 
@@ -72,7 +77,9 @@ export default function Budgeting() {
         <FolderTabs tabs={TABS} active={tab} onChange={setTab} scrollable>
           {tab === 'incomes' && <IncomesTab user={user} incomes={incomes} onChange={loadAll} />}
           {tab === 'expenses' && <ExpensesTab user={user} expenses={expenses} onChange={loadAll} />}
+          {tab === 'allocate' && <AllocateTab user={user} incomes={incomes} expenses={expenses} allocations={allocations} onChange={loadAll} />}
           {tab === 'savings' && <SavingsTab user={user} savings={savings} leftover={leftover} onChange={loadAll} />}
+          {tab === 'summary' && <SummaryTab incomes={incomes} expenses={expenses} savings={savings} />}
           {tab === 'info' && <InfoTab />}
         </FolderTabs>
       )}
@@ -258,6 +265,150 @@ function ExpensesTab({ user, expenses, onChange }) {
   )
 }
 
+function AllocateTab({ user, incomes, expenses, allocations, onChange }) {
+  const [selectedIncomeId, setSelectedIncomeId] = useState(incomes[0]?.id || '')
+  const [drafts, setDrafts] = useState({})
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const selectedIncome = incomes.find((i) => i.id === selectedIncomeId)
+
+  // How much of THIS income has been assigned to each expense so far
+  function allocatedByThisIncome(expenseId) {
+    const row = allocations.find((a) => a.income_id === selectedIncomeId && a.expense_id === expenseId)
+    return row ? Number(row.amount) : 0
+  }
+  // How much every income combined has assigned to this expense (incl. this one)
+  function totalAllocatedToExpense(expenseId) {
+    return allocations
+      .filter((a) => a.expense_id === expenseId)
+      .reduce((sum, a) => sum + Number(a.amount), 0)
+  }
+
+  function draftValue(expenseId) {
+    if (drafts[expenseId] !== undefined) return drafts[expenseId]
+    const existing = allocatedByThisIncome(expenseId)
+    return existing > 0 ? String(existing) : ''
+  }
+
+  const totalDraftedForThisIncome = expenses.reduce((sum, e) => {
+    const v = drafts[e.id] !== undefined ? drafts[e.id] : (allocatedByThisIncome(e.id) || '')
+    return sum + (parseFloat(v) || 0)
+  }, 0)
+  const incomeAmount = selectedIncome ? Number(selectedIncome.amount) : 0
+  const remaining = incomeAmount - totalDraftedForThisIncome
+
+  async function saveAllocations() {
+    if (!selectedIncome) return
+    setSaving(true)
+    for (const e of expenses) {
+      if (drafts[e.id] === undefined) continue
+      const amount = parseFloat(drafts[e.id]) || 0
+      const existing = allocations.find((a) => a.income_id === selectedIncomeId && a.expense_id === e.id)
+      if (amount <= 0 && existing) {
+        await supabase.from('budget_allocations').delete().eq('id', existing.id)
+      } else if (amount > 0) {
+        await supabase.from('budget_allocations').upsert(
+          { user_id: user.id, income_id: selectedIncomeId, expense_id: e.id, amount },
+          { onConflict: 'income_id,expense_id' }
+        )
+      }
+    }
+    setSaving(false)
+    setSaved(true)
+    setDrafts({})
+    onChange()
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  if (incomes.length === 0) {
+    return <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>Add an income first, then come back here to allocate it.</p>
+  }
+  if (expenses.length === 0) {
+    return <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>Add some expenses first, then come back here to allocate income to them.</p>
+  }
+
+  return (
+    <div>
+      <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
+        Pick an income, then decide how much of it goes toward each expense — before you spend a single peso.
+      </p>
+
+      <div className="field">
+        <label htmlFor="allocIncome">Income</label>
+        <select id="allocIncome" value={selectedIncomeId} onChange={(e) => { setSelectedIncomeId(e.target.value); setDrafts({}) }}>
+          {incomes.map((i) => (
+            <option key={i.id} value={i.id}>
+              {i.source} — {peso(i.amount)} ({new Date(i.income_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {selectedIncome && (
+        <>
+          <div
+            className="card"
+            style={{ marginBottom: 16, background: remaining < 0 ? '#FBE7E7' : 'var(--teal-100)', border: 'none' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
+              <span>Allocated</span>
+              <span><b>{peso(totalDraftedForThisIncome)}</b> / {peso(incomeAmount)}</span>
+            </div>
+            <div style={{ height: 8, borderRadius: 8, background: 'white', overflow: 'hidden' }}>
+              <div
+                style={{
+                  height: '100%', borderRadius: 8,
+                  width: `${Math.min(100, (totalDraftedForThisIncome / (incomeAmount || 1)) * 100)}%`,
+                  background: remaining < 0 ? '#f87171' : 'var(--teal-500)',
+                }}
+              />
+            </div>
+            <p style={{ fontSize: 12, color: remaining < 0 ? '#c0392b' : 'var(--ink-soft)', marginTop: 8, marginBottom: 0 }}>
+              {remaining < 0
+                ? `You've allocated ${peso(Math.abs(remaining))} more than this income.`
+                : `${peso(remaining)} left to allocate.`}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+            {expenses.map((e) => {
+              const totalForExpense = totalAllocatedToExpense(e.id)
+              const stillNeeded = Number(e.amount) - totalForExpense
+              return (
+                <div key={e.id} className="card" style={{ padding: '12px 16px', boxShadow: 'none', border: '1px solid var(--teal-100)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{e.name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
+                        {e.category} · Needs {peso(e.amount)} · Covered so far: {peso(totalForExpense)}
+                        {stillNeeded > 0 ? ` (₱${stillNeeded.toFixed(2)} short)` : ' ✓ fully covered'}
+                      </div>
+                    </div>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={draftValue(e.id)}
+                      onChange={(ev) => setDrafts((d) => ({ ...d, [e.id]: ev.target.value }))}
+                      placeholder="0.00"
+                      style={{ width: 100, padding: '6px 10px', borderRadius: 8, border: '2px solid var(--teal-100)', fontSize: 13, flexShrink: 0 }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {saved && <p style={{ color: 'var(--teal-700)', fontSize: 13, marginBottom: 10 }}>Allocations saved!</p>}
+          <button className="btn-primary" onClick={saveAllocations} disabled={saving}>
+            {saving ? 'Saving…' : 'Save allocations'}
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
 function SavingsTab({ user, savings, leftover, onChange }) {
   const [savingsType, setSavingsType] = useState('personal')
   const [name, setName] = useState('')
@@ -342,6 +493,78 @@ function SavingsTab({ user, savings, leftover, onChange }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontWeight: 700, color: 'var(--teal-700)' }}>{peso(s.amount)}</span>
                   <button className="btn-ghost" style={{ fontSize: 12 }} onClick={() => remove(s.id)}>Remove</button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SummaryTab({ incomes, expenses, savings }) {
+  const [monthFilter, setMonthFilter] = useState('all')
+
+  // Build one chronological ledger: incomes add to the balance, expenses
+  // and savings subtract from it (savings still leaves your pocket, even
+  // though it's going somewhere useful).
+  const ledger = [
+    ...incomes.map((i) => ({ id: 'inc-' + i.id, date: i.income_date, label: i.source, type: 'Income', signedAmount: Number(i.amount) })),
+    ...expenses.map((e) => ({ id: 'exp-' + e.id, date: e.due_date, label: e.name, type: 'Expense', signedAmount: -Number(e.amount) })),
+    ...savings.map((s) => ({ id: 'sav-' + s.id, date: s.saved_date, label: s.name || 'Savings', type: 'Savings', signedAmount: -Number(s.amount) })),
+  ].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+
+  let running = 0
+  const withBalance = ledger.map((row) => {
+    running += row.signedAmount
+    return { ...row, balance: running }
+  })
+
+  const months = Array.from(new Set(ledger.map((r) => r.date.slice(0, 7)))).sort().reverse()
+  const shown = monthFilter === 'all' ? withBalance : withBalance.filter((r) => r.date.slice(0, 7) === monthFilter)
+  const finalBalance = withBalance.length > 0 ? withBalance[withBalance.length - 1].balance : 0
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)', margin: 0 }}>
+          Every transaction, in order, with a running balance after each one.
+        </p>
+        <select value={monthFilter} onChange={(e) => setMonthFilter(e.target.value)} style={{ padding: '6px 10px', borderRadius: 8, border: '2px solid var(--teal-100)', fontSize: 12.5 }}>
+          <option value="all">All time</option>
+          {months.map((m) => (
+            <option key={m} value={m}>{new Date(m + '-01T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="card" style={{ marginBottom: 16, background: finalBalance < 0 ? '#FBE7E7' : 'var(--teal-100)', border: 'none', textAlign: 'center' }}>
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 4 }}>Current balance</p>
+        <p style={{ fontSize: 22, fontWeight: 900, color: finalBalance < 0 ? '#f87171' : 'var(--teal-700)' }}>{peso(finalBalance)}</p>
+      </div>
+
+      {shown.length === 0 ? (
+        <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>Nothing to show yet.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {shown.map((row) => {
+            const typeColor = row.type === 'Income' ? 'var(--teal-700)' : row.type === 'Savings' ? 'var(--pink-700)' : '#c0392b'
+            return (
+              <div key={row.id} className="card" style={{ padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: 'none', border: '1px solid var(--teal-100)', gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13.5 }}>{row.label}</div>
+                  <div style={{ fontSize: 11.5, color: 'var(--ink-soft)' }}>
+                    <span style={{ color: typeColor, fontWeight: 700 }}>{row.type}</span>
+                    {' · '}
+                    {new Date(row.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 13.5, color: row.signedAmount < 0 ? '#c0392b' : 'var(--teal-700)' }}>
+                    {row.signedAmount < 0 ? '-' : '+'}{peso(Math.abs(row.signedAmount))}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>Balance: {peso(row.balance)}</div>
                 </div>
               </div>
             )
