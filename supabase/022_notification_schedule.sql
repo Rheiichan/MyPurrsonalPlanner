@@ -1,7 +1,7 @@
 -- My Purrsonal Planner — Notification scheduler
 -- Run this AFTER deploying the send-notifications Edge Function (see README).
 --
--- IMPORTANT: before running, replace <YOUR_SERVICE_ROLE_KEY> below with your
+-- IMPORTANT: before running, replace eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvY2tva3hkaW94aWpzem9jYWtnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTEzMTcyNCwiZXhwIjoyMTA0NzA3NzI0fQ._2tSNBWS9bKDTCR1cL_pakSWJqIiMiLZ19hSYbEMVzU below with your
 -- project's actual service_role key, found in Supabase Dashboard ->
 -- Project Settings -> API -> service_role (the long secret one, NOT the
 -- anon key). This lets pg_cron authenticate to the Edge Function.
