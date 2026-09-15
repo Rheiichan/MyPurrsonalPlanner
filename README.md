@@ -12,6 +12,46 @@ A cozy, installable all-in-one life planner (PWA) — pastel pink/teal theme.
 
 The app is a PWA, so the app shell (all the code, styling, and icons) already works with no connection. On top of that, read (GET) requests to Supabase are cached on-device — so whatever data was last loaded (today's calendar, recent mood/sleep logs, notebook pages, etc.) stays viewable offline, with a small banner letting the person know they're viewing saved data. Adding or editing anything still requires a connection — writes are never cached, so they fail honestly (no silent data loss) rather than appearing to save. This is read-only offline support, not full offline editing with sync.
 
+## Trial & access
+
+New signups now get **full access immediately for 30 days** — no admin approval needed to start using the app. This is computed entirely client-side (comparing `trial_ends_at` to the current time), so no cron job is needed to "expire" anyone. Once the 30 days are up, everything locks except the Hub (with Quick To-Do) and Calendar, and a screen explains that upgrading to the full lifetime version requires contacting the admin for now (a PayMongo payment link is planned for later — until then, activation is a manual step in the Admin panel). Suspended accounts and the legacy pending-payment flow (from before trials existed) still show the full block screen exactly as before.
+
+## Push Notifications — setup (one-time, manual steps required)
+
+Real push notifications (they arrive even if the app isn't open) need a few pieces beyond what's in this zip, because they require server-side scheduling — something I can't do for you from inside this chat. Here's everything, step by step.
+
+**What's already done for you:**
+- `supabase/021_push_notifications.sql` — creates `push_subscriptions` (each device that's turned on notifications) and `notification_log` (prevents double-sending the same reminder).
+- `src/push.js` + a "Notifications" card in My Profile — lets a user turn notifications on/off from the app.
+- `src/sw.js` — the service worker now handles incoming push messages and taps on them (in addition to the offline caching it already did).
+- `supabase/functions/send-notifications/index.ts` — the actual logic: checks every 5 minutes for anything due (Quick To-Do reminders at 6am/12pm/6pm if something's unchecked, a mood nudge at 6pm if today's mood isn't logged, calendar events at their exact set time, and goals at 9am on their target date) and sends a push for each. All times are Asia/Manila.
+- `supabase/022_notification_schedule.sql` — the cron job that calls that function every 5 minutes.
+- VAPID keys (needed to prove the server sending the push is really yours) are already generated: the public one is in `.env` as `VITE_VAPID_PUBLIC_KEY`. The private one (**keep this secret, don't commit it anywhere public**) is:
+  ```
+  V8YoPjoP_4a76HX0UD2ko8bTUFrCzwiwAG2I6MhY2M4
+  ```
+
+**Steps you need to run yourself:**
+
+1. Run `supabase/021_push_notifications.sql` in the SQL Editor (tables).
+2. Install the Supabase CLI if you don't have it: `npm install -g supabase`
+3. From this project's folder: `supabase login`, then `supabase link --project-ref aockokxdioxijszocakg`
+4. Set the function's secrets (the private key stays server-side only, never in the app itself):
+   ```
+   supabase secrets set VAPID_PUBLIC_KEY=BOxm7HVttkJutZwqDLTOk25BhxGQv72TlqWg_eJPrA8S8wHW6O3ZRDvMEzP80nQTP5BDc9ldvXf1nA761KvWRsM
+   supabase secrets set VAPID_PRIVATE_KEY=V8YoPjoP_4a76HX0UD2ko8bTUFrCzwiwAG2I6MhY2M4
+   supabase secrets set VAPID_SUBJECT=mailto:youremail@example.com
+   ```
+5. Deploy the function: `supabase functions deploy send-notifications`
+6. Open `supabase/022_notification_schedule.sql`, replace `<YOUR_SERVICE_ROLE_KEY>` with your project's actual service_role key (Supabase Dashboard → Project Settings → API — the long secret one, not the anon key), then run it in the SQL Editor.
+7. Redeploy the app itself (push to GitHub → Vercel redeploys) so the new service worker goes live.
+8. In the app, go to My Profile → Notifications → "Turn on notifications" (once per device — each device/browser a person uses needs to do this separately).
+
+**A few honest limitations:**
+- On iPhone, this only works if the app has been **added to the Home Screen** first (iOS 16.4+) — push notifications don't work in Safari's browser tab itself.
+- Calendar and goal reminders are rounded to the nearest 5-minute mark, since the check only runs every 5 minutes.
+- If you'd rather not run a background job every 5 minutes indefinitely, you can widen the schedule (e.g. every 15 minutes) by editing the cron expression in step 6 — just know reminders will be less precisely timed.
+
 ## What's built so far
 - Signup / login (Supabase email auth)
 - Onboarding wizard: name, birthday, height, weight (optional) → BMI category + suggested healthy weight range + diet focus (lose/maintain/gain)
@@ -31,7 +71,8 @@ The app is a PWA, so the app shell (all the code, styling, and icons) already wo
 - Project Planner — "+ New Project" (name + optional target date), then each project has three independent checklists capped at 15 items each: Strategy/Ideas, Checklist, and Required Materials/Equipment — every item is checkable, addable, and removable; materials/equipment items also take an optional cost, with a running total cost shown for that section
 - Travel Planner — "+ New Trip" (destination, trip type: International/Local/Daytime, and a date range — or a single date for daytime); day count is computed automatically. Each trip has a per-day itinerary (folder tabs, one per day, unlimited checklist items) and a "Things to Bring" checklist that auto-populates based on trip type — International adds Passport/Travel Insurance/Valid IDs/Vouchers/Business Documents; International or Local adds quantity-aware items (Underwear and Day outfit sized to the day count, Sleepwear sized to the night count) plus toiletries/electronics/comfort items; every trip type gets Medicines, Powerbank, Cash, and Cards. Every auto-populated item can be removed, and the user can add as many of their own as they want
 - Budgeting — modeled on PreFundr's income-first approach, as 6 folder tabs: **Add Incomes** (source, type, amount, date), **Add Expenses** (name, category, amount, due date, bank, with a "make this recurring" checkbox that auto-generates next month's instance each time the page loads), **Allocate** (pick an income, then decide exactly how much of it goes toward each expense — a progress bar shows allocated vs. total, and each expense shows how much of it is covered so far across all incomes), **Savings** (shows "available to save this month" — income minus expenses minus already-saved — then lets you log Personal Savings / Sinking Fund / Emergency Fund entries with a bank/wallet field), **Summary** (every income, expense, and savings entry combined into one chronological ledger with a running balance after each transaction, filterable by month), and **Info** (expandable explainers: how income-first budgeting works, sinking vs. emergency funds, debt snowball, debt avalanche, and giving yourself a reward)
-- My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary, self-care, recipes, grocery, notebooks, projects, trips, budgeting) while keeping your account and profile
+- Notifications (My Profile → Notifications) — real push notifications: Quick To-Do reminders at 6am/12pm/6pm if anything's unchecked, a mood check-in nudge at 6pm, calendar events at their exact set time, and goal due-date reminders — see the "Push Notifications" section above for the (one-time, manual) setup this needs
+- My Profile (linked from every page's top bar, and from the Hub) — view your linked email, change your password, edit your name/birthday/height/weight, turn notifications on/off, and a "reset my data" danger zone that clears your logged content (calendar, mood, sleep, goals, gratitude, achievements, diary, self-care, recipes, grocery, notebooks, projects, trips, budgeting) while keeping your account and profile
 - Hub — below the date, a one-line life summary combining your recent average mood, recent average sleep, and current diet mode (e.g. "You're mostly happy, you're having good sleep, and you're in TTC diet mode") — only shows the parts you actually have data for. Below Today's schedule, a **Quick To-Do** list — add something fast, check it off, and it's deleted immediately (separate from the Calendar's dated to-dos, which stick around with a strikethrough instead)
 
 All 16 originally-planned modules are now built.
@@ -75,6 +116,7 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
    - `supabase/014_budgeting.sql` — adds `budget_incomes`, `budget_expenses` (with `is_recurring` — the app auto-generates each missing month's instance client-side, see `src/budgeting.js`), and `budget_savings` (Personal/Sinking/Emergency, each with a bank field).
    - `supabase/018_budget_allocations.sql` — adds `budget_allocations` (one row per income+expense pair) for the Budgeting module's Allocate tab.
    - `supabase/019_project_item_cost.sql` — adds an optional `cost` column to `project_items`, used by the Required Materials/Equipment checklist for a running total.
+   - `supabase/020_trial_system.sql` — adds `trial_started_at`/`trial_ends_at` to `profiles`, allows `'trial'` as an `account_status`, defaults new signups to it, and updates `admin_get_usage_stats` to surface trial end dates in the Admin panel.
    - `supabase/015_quick_todos.sql` — adds `quick_todos` for the Hub's Quick To-Do widget (checking an item off deletes it, unlike the Calendar's dated to-dos).
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.

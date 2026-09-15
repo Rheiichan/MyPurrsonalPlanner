@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
+import { pushSupported, getCurrentSubscription, enablePushNotifications, disablePushNotifications } from '../push'
 
 const DATA_TABLES = [
   'calendar_events', 'daily_todos', 'mood_logs', 'sleep_logs',
@@ -24,6 +25,7 @@ export default function Profile() {
       </div>
 
       <ProfileDetailsCard profile={profile} userId={user?.id} onSaved={refreshProfile} />
+      <NotificationsCard userId={user?.id} />
       <PasswordCard />
       <DangerZoneCard userId={user?.id} />
     </PageShell>
@@ -83,6 +85,61 @@ function ProfileDetailsCard({ profile, userId, onSaved }) {
         {saved && <p style={{ color: 'var(--teal-700)', fontSize: 13, marginBottom: 12 }}>Saved!</p>}
         <button className="btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
       </form>
+    </div>
+  )
+}
+
+function NotificationsCard({ userId }) {
+  const [supported, setSupported] = useState(true)
+  const [enabled, setEnabled] = useState(false)
+  const [checking, setChecking] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    setSupported(pushSupported())
+    getCurrentSubscription().then((sub) => {
+      setEnabled(!!sub)
+      setChecking(false)
+    }).catch(() => setChecking(false))
+  }, [])
+
+  async function toggle() {
+    setLoading(true)
+    setError('')
+    try {
+      if (enabled) {
+        await disablePushNotifications()
+        setEnabled(false)
+      } else {
+        await enablePushNotifications(userId)
+        setEnabled(true)
+      }
+    } catch (e) {
+      setError(e.message)
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 20 }}>
+      <h3 style={{ fontSize: 15, marginBottom: 6 }}>Notifications</h3>
+      <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 12 }}>
+        Get reminders for your quick to-dos (6am, 12pm, 6pm if anything's still unchecked), calendar events
+        (at their set time), a daily 6pm mood check-in nudge, and goal due dates.
+      </p>
+      {!supported ? (
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Notifications aren't supported on this browser/device.</p>
+      ) : checking ? (
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Checking…</p>
+      ) : (
+        <>
+          {error && <p style={{ color: 'var(--pink-700)', fontSize: 13, marginBottom: 10 }}>{error}</p>}
+          <button className={enabled ? 'btn-secondary' : 'btn-primary'} onClick={toggle} disabled={loading}>
+            {loading ? 'Working…' : enabled ? 'Turn off notifications' : 'Turn on notifications'}
+          </button>
+        </>
+      )}
     </div>
   )
 }

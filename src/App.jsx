@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { getAccessTier } from './access'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Setup from './pages/Setup'
@@ -7,6 +8,7 @@ import Hub from './pages/Hub'
 import CalendarPage from './pages/CalendarPage'
 import ComingSoon from './pages/ComingSoon'
 import PendingActivation from './pages/PendingActivation'
+import LockedPage from './pages/LockedPage'
 import AdminPanel from './pages/AdminPanel'
 import MoodTracker from './pages/MoodTracker'
 import SleepTracker from './pages/SleepTracker'
@@ -36,14 +38,19 @@ function FullScreenLoader() {
   )
 }
 
-// Gate that requires: logged in -> account activated by admin -> (optionally) onboarding complete
-function RequireAuth({ children, requireOnboarded = true }) {
+// Gate that requires: logged in -> has at least "locked" access -> (if
+// allowWhenLocked is false) has "full" access -> (optionally) onboarding done.
+// allowWhenLocked lets a route stay reachable even after the trial ends
+// (Hub, Calendar, My Profile).
+function RequireAuth({ children, requireOnboarded = true, allowWhenLocked = false }) {
   const { loading, user, profile, profileLoading, isAdmin } = useAuth()
   if (loading || (user && profileLoading)) return <FullScreenLoader />
   if (!user) return <Navigate to="/login" replace />
-  if (profile && profile.account_status !== 'active' && !isAdmin) {
-    return <Navigate to="/pending" replace />
-  }
+
+  const tier = getAccessTier(profile, isAdmin)
+  if (tier === 'blocked') return <Navigate to="/pending" replace />
+  if (tier === 'locked' && !allowWhenLocked) return <Navigate to="/locked" replace />
+
   if (requireOnboarded && profile && !profile.onboarding_complete) {
     return <Navigate to="/setup" replace />
   }
@@ -54,9 +61,9 @@ function RedirectIfAuthed({ children }) {
   const { loading, user, profile, profileLoading, isAdmin } = useAuth()
   if (loading || (user && profileLoading)) return <FullScreenLoader />
   if (user) {
-    if (profile && profile.account_status !== 'active' && !isAdmin) {
-      return <Navigate to="/pending" replace />
-    }
+    const tier = getAccessTier(profile, isAdmin)
+    if (tier === 'blocked') return <Navigate to="/pending" replace />
+    if (tier === 'locked') return <Navigate to="/hub" replace />
     return <Navigate to={profile?.onboarding_complete ? '/hub' : '/setup'} replace />
   }
   return children
@@ -66,9 +73,18 @@ function PendingRoute({ children }) {
   const { loading, user, profile, profileLoading, isAdmin } = useAuth()
   if (loading || (user && profileLoading)) return <FullScreenLoader />
   if (!user) return <Navigate to="/login" replace />
-  if (isAdmin || (profile && profile.account_status === 'active')) {
-    return <Navigate to="/hub" replace />
-  }
+  const tier = getAccessTier(profile, isAdmin)
+  if (tier !== 'blocked') return <Navigate to="/hub" replace />
+  return children
+}
+
+function LockedRoute({ children }) {
+  const { loading, user, profile, profileLoading, isAdmin } = useAuth()
+  if (loading || (user && profileLoading)) return <FullScreenLoader />
+  if (!user) return <Navigate to="/login" replace />
+  const tier = getAccessTier(profile, isAdmin)
+  if (tier === 'blocked') return <Navigate to="/pending" replace />
+  if (tier === 'full') return <Navigate to="/hub" replace />
   return children
 }
 
@@ -79,6 +95,7 @@ function AppRoutes() {
       <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
       <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
       <Route path="/pending" element={<PendingRoute><PendingActivation /></PendingRoute>} />
+      <Route path="/locked" element={<LockedRoute><LockedPage /></LockedRoute>} />
       <Route
         path="/setup"
         element={
@@ -87,15 +104,15 @@ function AppRoutes() {
           </RequireAuth>
         }
       />
-      <Route path="/hub" element={<RequireAuth><Hub /></RequireAuth>} />
-      <Route path="/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
+      <Route path="/hub" element={<RequireAuth allowWhenLocked><Hub /></RequireAuth>} />
+      <Route path="/calendar" element={<RequireAuth allowWhenLocked><CalendarPage /></RequireAuth>} />
       <Route path="/mood" element={<RequireAuth><MoodTracker /></RequireAuth>} />
       <Route path="/sleep" element={<RequireAuth><SleepTracker /></RequireAuth>} />
       <Route path="/feeling" element={<RequireAuth><HowAreYouFeeling /></RequireAuth>} />
       <Route path="/goals" element={<RequireAuth><Goals /></RequireAuth>} />
       <Route path="/gratitude" element={<RequireAuth><GratitudeJournal /></RequireAuth>} />
       <Route path="/secret-diary" element={<RequireAuth><SecretDiary /></RequireAuth>} />
-      <Route path="/profile" element={<RequireAuth requireOnboarded={false}><Profile /></RequireAuth>} />
+      <Route path="/profile" element={<RequireAuth requireOnboarded={false} allowWhenLocked><Profile /></RequireAuth>} />
       <Route path="/selfcare" element={<RequireAuth><SelfCareChallenge /></RequireAuth>} />
       <Route path="/recipes" element={<RequireAuth><Recipes /></RequireAuth>} />
       <Route path="/fitness" element={<RequireAuth><FitnessTracker /></RequireAuth>} />
@@ -107,7 +124,7 @@ function AppRoutes() {
       <Route path="/travel" element={<RequireAuth><TravelPlanner /></RequireAuth>} />
       <Route path="/travel/:id" element={<RequireAuth><TripDetail /></RequireAuth>} />
       <Route path="/budget" element={<RequireAuth><Budgeting /></RequireAuth>} />
-      <Route path="/admin" element={<RequireAuth requireOnboarded={false}><AdminPanel /></RequireAuth>} />
+      <Route path="/admin" element={<RequireAuth requireOnboarded={false} allowWhenLocked><AdminPanel /></RequireAuth>} />
       <Route path="/:moduleName" element={<RequireAuth><ComingSoon /></RequireAuth>} />
     </Routes>
   )

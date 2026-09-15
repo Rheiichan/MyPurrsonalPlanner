@@ -9,6 +9,7 @@ import MoodWidget from '../components/MoodWidget'
 import SleepWidget from '../components/SleepWidget'
 import { buildLifeSummary } from '../lifeSummary'
 import QuickTodoWidget from '../components/QuickTodoWidget'
+import { getAccessTier, daysLeftInTrial } from '../access'
 
 function todayISO() {
   return new Date().toLocaleDateString('en-CA')
@@ -52,22 +53,101 @@ export default function Hub() {
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const tier = getAccessTier(profile, isAdmin)
+  const trialDaysLeft = profile?.account_status === 'trial' ? daysLeftInTrial(profile) : null
+
+  const topBar = (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, padding: '16px 24px 0' }}>
+      {isAdmin && (
+        <Link to="/admin" className="btn-ghost" style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-700)' }}>
+          Admin panel
+        </Link>
+      )}
+      <Link to="/profile" className="btn-ghost" style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-700)' }}>
+        My Profile
+      </Link>
+      <button onClick={signOut} className="btn-ghost" style={{ fontSize: 13, color: 'var(--ink-soft)' }}>
+        Sign out
+      </button>
+    </div>
+  )
+
+  const scheduleCard = (
+    <div className="card" style={{ marginBottom: 30, background: 'var(--teal-100)', border: 'none', textAlign: 'left' }}>
+      <h3 style={{ fontSize: 16, marginBottom: 10 }}>Today's schedule</h3>
+      {loading ? (
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Loading…</p>
+      ) : todayEvents.length === 0 ? (
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Nothing on the books today — a clean slate 🐾</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {todayEvents.map((ev) => (
+            <div key={ev.id} style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 8, background: ev.color, flexShrink: 0 }} />
+              <span style={{ fontWeight: 700, minWidth: 64 }}>
+                {ev.event_time ? ev.event_time.slice(0, 5) : 'All day'}
+              </span>
+              <span>{ev.title}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <Link
+          to="/calendar"
+          className="btn-secondary"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13 }}
+        >
+          <IconCalendar /> View my Calendar
+        </Link>
+      </div>
+    </div>
+  )
+
+  const quickTodoCard = (
+    <div className="card" style={{ marginBottom: 30, background: 'var(--pink-100)', border: 'none', textAlign: 'left' }}>
+      <QuickTodoWidget />
+    </div>
+  )
+
+  if (tier === 'locked') {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
+        {topBar}
+        <div style={{ maxWidth: 560, margin: '0 auto', padding: '10px 24px 60px', textAlign: 'center' }}>
+          <img src={mascot} alt="" aria-hidden style={{ width: 72, height: 72, borderRadius: 22, margin: '0 auto 14px' }} />
+          <h1 style={{ fontSize: 26 }}>
+            {greeting}{profile?.name ? `, ${profile.name}` : ''}
+          </h1>
+          <p style={{ color: 'var(--ink-soft)', marginTop: 4, marginBottom: 20 }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+
+          <div className="card" style={{ marginBottom: 26, background: 'var(--pink-100)', border: '1px solid var(--pink-300)', textAlign: 'left' }}>
+            <h3 style={{ fontSize: 15, marginBottom: 8, color: 'var(--pink-700)' }}>Your 30-day trial has ended</h3>
+            <p style={{ fontSize: 13.5, marginBottom: 0 }}>
+              Calendar and Quick To-Do still work below. Everything else unlocks once you purchase the full lifetime
+              version — for now, contact the app admin to purchase.
+            </p>
+          </div>
+
+          {scheduleCard}
+          {quickTodoCard}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, padding: '16px 24px 0' }}>
-        {isAdmin && (
-          <Link to="/admin" className="btn-ghost" style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-700)' }}>
-            Admin panel
-          </Link>
-        )}
-        <Link to="/profile" className="btn-ghost" style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-700)' }}>
-          My Profile
-        </Link>
-        <button onClick={signOut} className="btn-ghost" style={{ fontSize: 13, color: 'var(--ink-soft)' }}>
-          Sign out
-        </button>
-      </div>
+      {topBar}
+      {trialDaysLeft !== null && (
+        <div style={{ maxWidth: 760, margin: '0 auto', padding: '10px 24px 0' }}>
+          <div style={{ background: 'var(--teal-100)', borderRadius: 12, padding: '8px 16px', fontSize: 12.5, fontWeight: 700, color: 'var(--teal-700)', textAlign: 'center' }}>
+            {trialDaysLeft === 0 ? "Your free trial ends today" : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left in your free trial`}
+          </div>
+        </div>
+      )}
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '10px 24px 60px', textAlign: 'center' }}>
         <img src={mascot} alt="" aria-hidden style={{ width: 72, height: 72, borderRadius: 22, margin: '0 auto 14px' }} />
@@ -83,39 +163,8 @@ export default function Hub() {
           </p>
         )}
 
-        <div className="card" style={{ marginBottom: 30, background: 'var(--teal-100)', border: 'none', textAlign: 'left' }}>
-          <h3 style={{ fontSize: 16, marginBottom: 10 }}>Today's schedule</h3>
-          {loading ? (
-            <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Loading…</p>
-          ) : todayEvents.length === 0 ? (
-            <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>Nothing on the books today — a clean slate 🐾</p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {todayEvents.map((ev) => (
-                <div key={ev.id} style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 8, background: ev.color, flexShrink: 0 }} />
-                  <span style={{ fontWeight: 700, minWidth: 64 }}>
-                    {ev.event_time ? ev.event_time.slice(0, 5) : 'All day'}
-                  </span>
-                  <span>{ev.title}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <Link
-              to="/calendar"
-              className="btn-secondary"
-              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13 }}
-            >
-              <IconCalendar /> View my Calendar
-            </Link>
-          </div>
-        </div>
-
-        <div className="card" style={{ marginBottom: 30, background: 'var(--pink-100)', border: 'none', textAlign: 'left' }}>
-          <QuickTodoWidget />
-        </div>
+        {scheduleCard}
+        {quickTodoCard}
 
         <div
           style={{
