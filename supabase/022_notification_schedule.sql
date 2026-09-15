@@ -16,7 +16,7 @@ select cron.schedule(
   select net.http_post(
     url := 'https://aockokxdioxijszocakg.supabase.co/functions/v1/send-notifications',
     headers := jsonb_build_object(
-      'Authorization', 'Bearer <YOUR_SERVICE_ROLE_KEY>',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvY2tva3hkaW94aWpzem9jYWtnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTEzMTcyNCwiZXhwIjoyMTA0NzA3NzI0fQ._2tSNBWS9bKDTCR1cL_pakSWJqIiMiLZ19hSYbEMVzU',
       'Content-Type', 'application/json'
     ),
     body := '{}'::jsonb
