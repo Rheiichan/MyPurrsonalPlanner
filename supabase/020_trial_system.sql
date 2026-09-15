@@ -24,7 +24,11 @@ alter table profiles alter column account_status set default 'trial';
 
 -- Surface trial_ends_at in the admin usage-stats view so the Admin panel
 -- can show how much trial time each user has left.
-create or replace function admin_get_usage_stats()
+-- Must DROP first: Postgres won't let CREATE OR REPLACE change a
+-- function's return row type (we're adding a new output column here).
+drop function if exists admin_get_usage_stats();
+
+create function admin_get_usage_stats()
 returns table (
   user_id uuid,
   email text,
