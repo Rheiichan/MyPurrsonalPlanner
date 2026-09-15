@@ -8,8 +8,12 @@ const MAX_ITEMS = 15
 const SECTIONS = [
   { key: 'strategy', title: 'Strategy / Ideas', placeholder: 'Add an idea…' },
   { key: 'checklist', title: 'Checklist', placeholder: 'Add a to-do…' },
-  { key: 'materials', title: 'Required Materials', placeholder: 'Add a material…' },
+  { key: 'materials', title: 'Required Materials / Equipment', placeholder: 'Add a material…', withCost: true },
 ]
+
+function formatCost(n) {
+  return '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
 
 export default function ProjectDetail() {
   const { id } = useParams()
@@ -42,13 +46,13 @@ export default function ProjectDetail() {
 
   useEffect(() => { if (user) load() }, [user, id])
 
-  async function addItem(section, content) {
+  async function addItem(section, content, cost) {
     const sectionItems = items.filter((it) => it.section === section)
     if (sectionItems.length >= MAX_ITEMS) return
     const nextPosition = sectionItems.length > 0 ? Math.max(...sectionItems.map((it) => it.position)) + 1 : 1
     const { data } = await supabase
       .from('project_items')
-      .insert({ project_id: id, user_id: user.id, section, content, position: nextPosition })
+      .insert({ project_id: id, user_id: user.id, section, content, position: nextPosition, cost: cost ?? null })
       .select()
       .maybeSingle()
     if (data) setItems((prev) => [...prev, data])
@@ -100,7 +104,7 @@ export default function ProjectDetail() {
             key={s.key}
             section={s}
             items={items.filter((it) => it.section === s.key)}
-            onAdd={(content) => addItem(s.key, content)}
+            onAdd={(content, cost) => addItem(s.key, content, cost)}
             onToggle={toggleItem}
             onRemove={removeItem}
           />
@@ -148,13 +152,17 @@ function ProjectHeaderEditor({ project, onSaved, onCancel }) {
 
 function ChecklistSection({ section, items, onAdd, onToggle, onRemove }) {
   const [newText, setNewText] = useState('')
+  const [newCost, setNewCost] = useState('')
   const atMax = items.length >= MAX_ITEMS
+  const totalCost = items.reduce((sum, it) => sum + (it.cost ? Number(it.cost) : 0), 0)
 
   function handleAdd(e) {
     e.preventDefault()
     if (!newText.trim() || atMax) return
-    onAdd(newText.trim())
+    const cost = section.withCost && newCost !== '' ? parseFloat(newCost) : null
+    onAdd(newText.trim(), cost)
     setNewText('')
+    setNewCost('')
   }
 
   return (
@@ -174,9 +182,19 @@ function ChecklistSection({ section, items, onAdd, onToggle, onRemove }) {
               <span style={{ flex: 1, fontSize: 14, textDecoration: it.is_done ? 'line-through' : 'none', color: it.is_done ? 'var(--ink-soft)' : 'var(--ink)' }}>
                 {it.content}
               </span>
+              {section.withCost && it.cost != null && (
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-700)', flexShrink: 0 }}>{formatCost(it.cost)}</span>
+              )}
               <button className="btn-ghost" onClick={() => onRemove(it.id)} style={{ fontSize: 12 }}>Remove</button>
             </div>
           ))}
+        </div>
+      )}
+
+      {section.withCost && totalCost > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, fontWeight: 700, padding: '8px 0', borderTop: '1px solid var(--teal-100)', marginBottom: 12 }}>
+          <span>Total cost</span>
+          <span style={{ color: 'var(--teal-700)' }}>{formatCost(totalCost)}</span>
         </div>
       )}
 
@@ -188,6 +206,16 @@ function ChecklistSection({ section, items, onAdd, onToggle, onRemove }) {
             placeholder={section.placeholder}
             style={{ flex: 1, padding: '8px 12px', borderRadius: 10, border: '2px solid var(--teal-100)', fontSize: 13 }}
           />
+          {section.withCost && (
+            <input
+              type="number"
+              step="0.01"
+              value={newCost}
+              onChange={(e) => setNewCost(e.target.value)}
+              placeholder="Cost (optional)"
+              style={{ width: 130, padding: '8px 12px', borderRadius: 10, border: '2px solid var(--teal-100)', fontSize: 13 }}
+            />
+          )}
           <button className="btn-secondary" style={{ fontSize: 13, padding: '8px 14px' }}>Add</button>
         </form>
       ) : (

@@ -107,7 +107,10 @@ export function IconProjects(props) {
 export function IconTravel(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" {...common} {...props}>
-      <path d="M10.5 20.5 12 17l1.5 3.5M4 14l16-6.6c1-.4 1.9.5 1.5 1.5L14.9 20a.6.6 0 0 1-1.1 0l-2-5-5-2a.6.6 0 0 1 0-1.1L14 8" />
+      <rect x="4" y="8" width="16" height="12.5" rx="2.2" />
+      <path d="M9 8V6.3A2.3 2.3 0 0 1 11.3 4h1.4A2.3 2.3 0 0 1 15 6.3V8" />
+      <path d="M4 13.5h16" />
+      <path d="M10.3 8v-1M13.7 8v-1" />
     </svg>
   )
 }
