@@ -18,6 +18,13 @@ const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY')!
 const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')!
 const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') || 'mailto:admin@example.com'
+// A secret only this function and the cron job know — checked below so
+// this endpoint can't be triggered by anyone else. This sidesteps
+// Supabase's publishable/secret-key vs JWT distinction entirely: it's
+// just our own shared password for this one job. Set it as an Edge
+// Function secret (CRON_SECRET) and also disable "Verify JWT" for this
+// function in the Dashboard, since our own check below replaces it.
+const CRON_SECRET = Deno.env.get('CRON_SECRET')!
 
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
 
@@ -73,7 +80,12 @@ async function sendToUser(userId: string, kind: string, refKey: string, title: s
   }
 }
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  const authHeader = req.headers.get('authorization') || ''
+  if (authHeader !== `Bearer ${CRON_SECRET}`) {
+    return new Response('Unauthorized', { status: 401 })
+  }
+
   const now = manilaNow()
   const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
   const tickLabel = floorToTick(now.getHours(), now.getMinutes())

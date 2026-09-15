@@ -34,18 +34,20 @@ Real push notifications (they arrive even if the app isn't open) need a few piec
 **Steps you need to run yourself:**
 
 1. Run `supabase/021_push_notifications.sql` in the SQL Editor (tables).
-2. Install the Supabase CLI if you don't have it: `npm install -g supabase`
-3. From this project's folder: `supabase login`, then `supabase link --project-ref aockokxdioxijszocakg`
-4. Set the function's secrets (the private key stays server-side only, never in the app itself):
+2. In Supabase Dashboard → Edge Functions → "Deploy a new function" → "Via Editor", name it exactly `send-notifications`, and paste in the contents of `supabase/functions/send-notifications/index.ts`.
+4. Set the function's secrets — four of them now (the private VAPID key stays server-side only, never in the app itself):
    ```
-   supabase secrets set VAPID_PUBLIC_KEY=BOxm7HVttkJutZwqDLTOk25BhxGQv72TlqWg_eJPrA8S8wHW6O3ZRDvMEzP80nQTP5BDc9ldvXf1nA761KvWRsM
-   supabase secrets set VAPID_PRIVATE_KEY=V8YoPjoP_4a76HX0UD2ko8bTUFrCzwiwAG2I6MhY2M4
-   supabase secrets set VAPID_SUBJECT=mailto:youremail@example.com
+   VAPID_PUBLIC_KEY=BOxm7HVttkJutZwqDLTOk25BhxGQv72TlqWg_eJPrA8S8wHW6O3ZRDvMEzP80nQTP5BDc9ldvXf1nA761KvWRsM
+   VAPID_PRIVATE_KEY=V8YoPjoP_4a76HX0UD2ko8bTUFrCzwiwAG2I6MhY2M4
+   VAPID_SUBJECT=mailto:youremail@example.com
+   CRON_SECRET=<a random string you make up — see below>
    ```
-5. Deploy the function: `supabase functions deploy send-notifications`
-6. Open `supabase/022_notification_schedule.sql`, replace `<YOUR_SERVICE_ROLE_KEY>` with your project's actual service_role key (Supabase Dashboard → Project Settings → API — the long secret one, not the anon key), then run it in the SQL Editor.
-7. Redeploy the app itself (push to GitHub → Vercel redeploys) so the new service worker goes live.
-8. In the app, go to My Profile → Notifications → "Turn on notifications" (once per device — each device/browser a person uses needs to do this separately).
+   For `CRON_SECRET`, generate any long random string (it's just a password only your cron job and this function will know — not a Supabase key at all, so it works the same regardless of whether your project uses the old `service_role` key or the new `sb_secret_...` key system). One easy way: open any password generator and grab a 40+ character random string.
+5. Deploy the function (via the Dashboard's "Deploy a new function → Via Editor", or `supabase functions deploy send-notifications` if using the CLI).
+6. **Turn off "Verify JWT"** for this function — Supabase Dashboard → Edge Functions → send-notifications → Settings. This matters: without it, Supabase's own platform check rejects the cron job's request before the function's own `CRON_SECRET` check even runs.
+7. Open `supabase/022_notification_schedule.sql`, replace `<YOUR_CRON_SECRET>` with the same random string you used for the `CRON_SECRET` secret in step 4, then run it in the SQL Editor.
+8. Redeploy the app itself (push to GitHub → Vercel redeploys) so the new service worker goes live.
+9. In the app, go to My Profile → Notifications → "Turn on notifications" (once per device — each device/browser a person uses needs to do this separately).
 
 **A few honest limitations:**
 - On iPhone, this only works if the app has been **added to the Home Screen** first (iOS 16.4+) — push notifications don't work in Safari's browser tab itself.
