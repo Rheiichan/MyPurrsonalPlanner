@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import mascot from '../assets/mascot.png'
-import { IconHome, IconProfile } from './icons'
+import { IconHome } from './icons'
 
 export default function PageShell({ children, title }) {
   const { signOut, isAdmin } = useAuth()
@@ -26,13 +26,6 @@ export default function PageShell({ children, title }) {
             Admin
           </Link>
         )}
-        <Link
-          to="/profile"
-          className="btn-ghost"
-          style={{ color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700 }}
-        >
-          <IconProfile style={{ color: 'inherit' }} /> My Profile
-        </Link>
         <button onClick={signOut} className="btn-ghost" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>
           Sign out
         </button>

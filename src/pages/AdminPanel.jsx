@@ -16,10 +16,24 @@ function StatusPill({ status }) {
   return <span className="pill" style={{ background: s.bg, color: s.color }}>{s.label}</span>
 }
 
+function ProgressBar({ percent, color }) {
+  return (
+    <div style={{ height: 8, borderRadius: 8, background: 'var(--teal-100)', overflow: 'hidden' }}>
+      <div style={{ height: '100%', borderRadius: 8, width: `${Math.min(100, percent)}%`, background: color }} />
+    </div>
+  )
+}
+
+const FREE_TIER_DB_LIMIT_MB = 500
+// Rough reference point for "a lot of rows" — not a real limit, just a
+// stable yardstick so each user's bar means roughly the same thing over time.
+const HEAVY_USER_ROW_REFERENCE = 500
+
 export default function AdminPanel() {
   const { isAdmin, profile } = useAuth()
   const [tab, setTab] = useState('trial')
   const [users, setUsers] = useState([])
+  const [dbSizeMb, setDbSizeMb] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [noteDrafts, setNoteDrafts] = useState({})
@@ -28,9 +42,14 @@ export default function AdminPanel() {
   async function loadUsers() {
     setLoading(true)
     setError('')
-    const { data, error } = await supabase.rpc('admin_get_usage_stats')
+    const [{ data, error }, { data: sizeBytes, error: sizeError }] = await Promise.all([
+      supabase.rpc('admin_get_usage_stats'),
+      supabase.rpc('admin_get_db_size_bytes'),
+    ])
     if (error) setError(error.message)
+    else if (sizeError) setError(sizeError.message)
     setUsers(data || [])
+    if (typeof sizeBytes === 'number') setDbSizeMb(sizeBytes / (1024 * 1024))
     setLoading(false)
   }
 
@@ -72,6 +91,22 @@ export default function AdminPanel() {
       <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
         New signups get a 30-day free trial automatically. Activate an account here once they've purchased the lifetime version, to keep their access after the trial ends.
       </p>
+
+      {dbSizeMb !== null && (
+        <div className="card" style={{ marginBottom: 20, background: 'var(--teal-100)', border: 'none' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
+            <span style={{ fontWeight: 700 }}>Supabase free-tier database usage</span>
+            <span>{dbSizeMb.toFixed(1)} MB / {FREE_TIER_DB_LIMIT_MB} MB</span>
+          </div>
+          <ProgressBar
+            percent={(dbSizeMb / FREE_TIER_DB_LIMIT_MB) * 100}
+            color={dbSizeMb / FREE_TIER_DB_LIMIT_MB > 0.85 ? '#f87171' : dbSizeMb / FREE_TIER_DB_LIMIT_MB > 0.6 ? '#F2C14E' : 'var(--teal-500)'}
+          />
+          <p style={{ fontSize: 11.5, color: 'var(--ink-soft)', marginTop: 6, marginBottom: 0 }}>
+            Internal only — this is the real total database size across all users, so you can see how close the project is to Supabase's free 500 MB limit.
+          </p>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
         {[
@@ -122,6 +157,13 @@ export default function AdminPanel() {
                   )}
                   <span>Calendar events: {u.event_count}</span>
                   <span>To-dos: {u.todo_count}</span>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: 'var(--ink-soft)', marginBottom: 4 }}>
+                    <span>Data usage (rows across the app, rough estimate)</span>
+                    <span>{u.total_rows}</span>
+                  </div>
+                  <ProgressBar percent={(u.total_rows / HEAVY_USER_ROW_REFERENCE) * 100} color="var(--teal-500)" />
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <input

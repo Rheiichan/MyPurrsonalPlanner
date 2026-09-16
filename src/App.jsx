@@ -29,6 +29,7 @@ import TravelPlanner from './pages/TravelPlanner'
 import TripDetail from './pages/TripDetail'
 import Budgeting from './pages/Budgeting'
 import OfflineBanner from './components/OfflineBanner'
+import ThemeApplier from './components/ThemeApplier'
 
 function FullScreenLoader() {
   return (
@@ -134,6 +135,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ThemeApplier />
         <OfflineBanner />
         <AppRoutes />
       </BrowserRouter>

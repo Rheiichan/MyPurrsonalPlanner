@@ -54,6 +54,10 @@ Real push notifications (they arrive even if the app isn't open) need a few piec
 - Calendar and goal reminders are rounded to the nearest 5-minute mark, since the check only runs every 5 minutes.
 - If you'd rather not run a background job every 5 minutes indefinitely, you can widen the schedule (e.g. every 15 minutes) by editing the cron expression in step 6 — just know reminders will be less precisely timed.
 
+- Theme (My Profile → Theme) — 5 preset pastel two-color themes: Pink & Teal (default), Gray & White, Blue & Pink, Yellow & Pink, and Blue & Gray. Applies instantly app-wide and is saved per account.
+- Admin panel usage bars (internal) — an overall progress bar showing the project's real total database size vs. Supabase's free-tier 500 MB limit, plus a rough per-user "data usage" bar (a row count across every table in the app) to help spot a heavy user before the limit is a problem.
+- My Profile moved — it's no longer in the header next to Sign out; it's now a card in the Hub's main button grid, same as any other module (still reachable via a plain link if your trial has ended and the grid isn't shown).
+
 ## What's built so far
 - Signup / login (Supabase email auth)
 - Onboarding wizard: name, birthday, height, weight (optional) → BMI category + suggested healthy weight range + diet focus (lose/maintain/gain)
@@ -119,6 +123,9 @@ insert into admins (user_id) values ('paste-your-user-uuid-here');
    - `supabase/018_budget_allocations.sql` — adds `budget_allocations` (one row per income+expense pair) for the Budgeting module's Allocate tab.
    - `supabase/019_project_item_cost.sql` — adds an optional `cost` column to `project_items`, used by the Required Materials/Equipment checklist for a running total.
    - `supabase/020_trial_system.sql` — adds `trial_started_at`/`trial_ends_at` to `profiles`, allows `'trial'` as an `account_status`, defaults new signups to it, and updates `admin_get_usage_stats` to surface trial end dates in the Admin panel.
+   - `supabase/021_push_notifications.sql`, `022_notification_schedule.sql` — push notification support (see the "Push Notifications" section above for full setup).
+   - `supabase/023_admin_usage_bars.sql` — adds `admin_get_db_size_bytes()` and a `total_rows` column to `admin_get_usage_stats`, powering the Admin panel's usage bars.
+   - `supabase/024_theme_selection.sql` — adds a `theme` column to `profiles` for the 5 preset color themes.
    - `supabase/015_quick_todos.sql` — adds `quick_todos` for the Hub's Quick To-Do widget (checking an item off deletes it, unlike the Calendar's dated to-dos).
 
 2. **Turn off email confirmation** (optional, since access is already gated by admin activation): Supabase dashboard → Authentication → Providers → Email → toggle off "Confirm email". The app already handles both cases either way.

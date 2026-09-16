@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import { pushSupported, getCurrentSubscription, enablePushNotifications, disablePushNotifications } from '../push'
+import { THEMES } from '../themes'
 
 const DATA_TABLES = [
   'calendar_events', 'daily_todos', 'mood_logs', 'sleep_logs',
@@ -25,6 +26,7 @@ export default function Profile() {
       </div>
 
       <ProfileDetailsCard profile={profile} userId={user?.id} onSaved={refreshProfile} />
+      <ThemeCard profile={profile} userId={user?.id} onSaved={refreshProfile} />
       <NotificationsCard userId={user?.id} />
       <PasswordCard />
       <DangerZoneCard userId={user?.id} />
@@ -140,6 +142,52 @@ function NotificationsCard({ userId }) {
           </button>
         </>
       )}
+    </div>
+  )
+}
+
+function ThemeCard({ profile, userId, onSaved }) {
+  const current = profile?.theme || 'pink-teal'
+  const [saving, setSaving] = useState(null)
+
+  async function chooseTheme(key) {
+    setSaving(key)
+    await supabase.from('profiles').update({ theme: key }).eq('id', userId)
+    setSaving(null)
+    onSaved()
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 20 }}>
+      <h3 style={{ fontSize: 15, marginBottom: 6 }}>Theme</h3>
+      <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
+        Pick a pastel color pair for the whole app.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
+        {Object.entries(THEMES).map(([key, theme]) => {
+          const isActive = current === key
+          return (
+            <button
+              key={key}
+              onClick={() => chooseTheme(key)}
+              disabled={saving === key}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
+                borderRadius: 12, border: isActive ? '2px solid var(--teal-500)' : '2px solid var(--teal-100)',
+                background: isActive ? 'var(--teal-100)' : 'white', cursor: 'pointer',
+              }}
+            >
+              <span style={{ display: 'flex' }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: theme.swatch[0], border: '2px solid white', boxShadow: '0 0 0 1px var(--teal-100)' }} />
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: theme.swatch[1], border: '2px solid white', boxShadow: '0 0 0 1px var(--teal-100)', marginLeft: -8 }} />
+              </span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, textAlign: 'left' }}>
+                {theme.label}{isActive ? ' ✓' : ''}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

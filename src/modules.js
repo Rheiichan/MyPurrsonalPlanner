@@ -1,7 +1,7 @@
 import {
   IconCalendar, IconMood, IconFeeling, IconBudget, IconRecipes,
   IconFitness, IconSleep, IconSelfcare, IconGrocery, IconProjects, IconTravel, IconNotebook,
-  IconGoals, IconGratitude, IconLock,
+  IconGoals, IconGratitude, IconLock, IconProfile,
 } from './components/icons'
 
 export const MODULES = [
@@ -20,4 +20,5 @@ export const MODULES = [
   { key: 'projects', label: 'Project Planner', Icon: IconProjects, path: '/projects', available: true },
   { key: 'travel', label: 'Travel Planner', Icon: IconTravel, path: '/travel', available: true },
   { key: 'notebooks', label: 'Notebooks', Icon: IconNotebook, path: '/notebooks', available: true },
+  { key: 'profile', label: 'My Profile', Icon: IconProfile, path: '/profile', available: true },
 ]

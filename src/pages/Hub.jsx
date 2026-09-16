@@ -63,9 +63,6 @@ export default function Hub() {
           Admin panel
         </Link>
       )}
-      <Link to="/profile" className="btn-ghost" style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-700)' }}>
-        My Profile
-      </Link>
       <button onClick={signOut} className="btn-ghost" style={{ fontSize: 13, color: 'var(--ink-soft)' }}>
         Sign out
       </button>
@@ -133,6 +130,10 @@ export default function Hub() {
 
           {scheduleCard}
           {quickTodoCard}
+
+          <Link to="/profile" className="btn-ghost" style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-700)' }}>
+            My Profile
+          </Link>
         </div>
       </div>
     )
