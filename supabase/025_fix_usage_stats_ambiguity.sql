@@ -1,25 +1,13 @@
--- My Purrsonal Planner — Admin usage progress bars
--- Run this AFTER 001-022, in Supabase SQL Editor
+-- My Purrsonal Planner — fix ambiguous column reference in admin_get_usage_stats (again)
+-- Run this in Supabase SQL Editor.
 --
--- Two things, both admin-only:
---   1. admin_get_db_size_bytes() — the real total database size, to compare
---      against Supabase's free-tier 500 MB limit.
---   2. admin_get_usage_stats() — now also returns total_rows, a row count
---      across every table in the app for that user (not just calendar/
---      to-dos as before). This is a rough stand-in for "how much space
---      this user is using" — rows vary a lot in actual size (a diary
---      entry is much bigger than a mood log), so treat it as a relative
---      signal for spotting a heavy user, not an exact byte count.
-
-create or replace function admin_get_db_size_bytes()
-returns bigint as $$
-begin
-  if not exists (select 1 from admins a where a.user_id = auth.uid()) then
-    raise exception 'Not authorized';
-  end if;
-  return pg_database_size(current_database());
-end;
-$$ language plpgsql security definer;
+-- Root cause: same issue as the earlier admin_get_usage_stats fix — the
+-- function's OUT parameter is itself named "user_id" (from RETURNS TABLE),
+-- so every bare, unqualified "user_id" column reference inside the
+-- function body is ambiguous against that parameter, even in a query
+-- that only touches one table. The new all_rows CTE added in
+-- 023_admin_usage_bars.sql had 24 unqualified "select user_id from ..."
+-- lines. Fixed by qualifying every one with its table name.
 
 drop function if exists admin_get_usage_stats();
 

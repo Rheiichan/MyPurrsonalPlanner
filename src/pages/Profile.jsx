@@ -5,13 +5,24 @@ import PageShell from '../components/PageShell'
 import { pushSupported, getCurrentSubscription, enablePushNotifications, disablePushNotifications } from '../push'
 import { THEMES } from '../themes'
 
-const DATA_TABLES = [
-  'calendar_events', 'daily_todos', 'mood_logs', 'sleep_logs',
-  'goals', 'gratitude_entries', 'achievements', 'diary_entries', 'selfcare_logs', 'user_recipes',
-  'grocery_checks', 'grocery_custom_items', 'notebook_pages', 'notebooks',
-  'project_items', 'projects', 'trip_itinerary_items', 'trip_packing_items', 'trips',
-  'budget_incomes', 'budget_expenses', 'budget_savings', 'budget_allocations', 'quick_todos',
+const DATA_CATEGORIES = [
+  { key: 'calendar', label: 'Calendar events & to-dos', tables: ['calendar_events', 'daily_todos'] },
+  { key: 'quicktodo', label: 'Quick To-Do list', tables: ['quick_todos'] },
+  { key: 'mood', label: 'Mood logs', tables: ['mood_logs'] },
+  { key: 'sleep', label: 'Sleep logs', tables: ['sleep_logs'] },
+  { key: 'goals', label: 'Goals', tables: ['goals'] },
+  { key: 'gratitude', label: 'Gratitude journal & achievements', tables: ['gratitude_entries', 'achievements'] },
+  { key: 'diary', label: 'Secret diary entries', tables: ['diary_entries'] },
+  { key: 'selfcare', label: 'Self-care challenge progress', tables: ['selfcare_logs'] },
+  { key: 'recipes', label: 'Saved recipes', tables: ['user_recipes'] },
+  { key: 'grocery', label: 'Grocery list', tables: ['grocery_checks', 'grocery_custom_items'] },
+  { key: 'notebooks', label: 'Notebooks (resets to 5 blank ones)', tables: ['notebook_pages', 'notebooks'] },
+  { key: 'projects', label: 'Projects', tables: ['project_items', 'projects'] },
+  { key: 'travel', label: 'Travel planner trips', tables: ['trip_itinerary_items', 'trip_packing_items', 'trips'] },
+  { key: 'budgeting', label: 'Budgeting data', tables: ['budget_allocations', 'budget_incomes', 'budget_expenses', 'budget_savings'] },
 ]
+
+const DATA_TABLES = DATA_CATEGORIES.flatMap((c) => c.tables)
 
 export default function Profile() {
   const { user, profile, refreshProfile } = useAuth()
@@ -29,6 +40,7 @@ export default function Profile() {
       <ThemeCard profile={profile} userId={user?.id} onSaved={refreshProfile} />
       <NotificationsCard userId={user?.id} />
       <PasswordCard />
+      <ManageDataCard userId={user?.id} />
       <DangerZoneCard userId={user?.id} />
     </PageShell>
   )
@@ -240,6 +252,74 @@ function PasswordCard() {
   )
 }
 
+function ManageDataCard({ userId }) {
+  const [selected, setSelected] = useState(new Set())
+  const [confirming, setConfirming] = useState(false)
+  const [clearing, setClearing] = useState(false)
+  const [done, setDone] = useState(false)
+
+  function toggle(key) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+    setDone(false)
+  }
+
+  async function clearSelected() {
+    setClearing(true)
+    const categories = DATA_CATEGORIES.filter((c) => selected.has(c.key))
+    for (const cat of categories) {
+      for (const table of cat.tables) {
+        await supabase.from(table).delete().eq('user_id', userId)
+      }
+    }
+    setClearing(false)
+    setConfirming(false)
+    setSelected(new Set())
+    setDone(true)
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 20 }}>
+      <h3 style={{ fontSize: 15, marginBottom: 6 }}>Manage my data</h3>
+      <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
+        Running low on space? Choose exactly what to clear out — anything you don't check stays untouched.
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+        {DATA_CATEGORIES.map((cat) => (
+          <label key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5, cursor: 'pointer' }}>
+            <input type="checkbox" checked={selected.has(cat.key)} onChange={() => toggle(cat.key)} />
+            {cat.label}
+          </label>
+        ))}
+      </div>
+
+      {done && <p style={{ color: 'var(--teal-700)', fontSize: 13, marginBottom: 12 }}>Cleared!</p>}
+
+      {!confirming ? (
+        <button className="btn-secondary" onClick={() => setConfirming(true)} disabled={selected.size === 0}>
+          Clear selected data{selected.size > 0 ? ` (${selected.size})` : ''}
+        </button>
+      ) : (
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>
+            Clear {selected.size} type{selected.size !== 1 ? 's' : ''} of data? This can't be undone.
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn-ghost" onClick={() => setConfirming(false)}>Cancel</button>
+            <button className="btn-primary" style={{ background: 'var(--pink-700)' }} onClick={clearSelected} disabled={clearing}>
+              {clearing ? 'Clearing…' : 'Yes, clear it'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DangerZoneCard({ userId }) {
   const [confirming, setConfirming] = useState(false)
   const [resetting, setResetting] = useState(false)
@@ -257,9 +337,9 @@ function DangerZoneCard({ userId }) {
 
   return (
     <div className="card" style={{ border: '1px solid var(--pink-300)' }}>
-      <h3 style={{ fontSize: 15, marginBottom: 6, color: 'var(--pink-700)' }}>Danger zone</h3>
+      <h3 style={{ fontSize: 15, marginBottom: 6, color: 'var(--pink-700)' }}>Danger zone — clear everything at once</h3>
       <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
-        Permanently clears your calendar events, to-dos, quick to-do list, mood and sleep logs, goals, gratitude entries, achievements, secret diary entries, self-care challenge progress, saved recipes, grocery list, notebooks (notebooks will reset to 5 blank ones next time you open them), projects, trips, and budgeting data. Your account, PIN, and profile details stay as they are.
+        Prefer to pick and choose? Use "Manage my data" above instead. This button permanently clears your calendar events, to-dos, quick to-do list, mood and sleep logs, goals, gratitude entries, achievements, secret diary entries, self-care challenge progress, saved recipes, grocery list, notebooks (notebooks will reset to 5 blank ones next time you open them), projects, trips, and budgeting data — all of it at once. Your account, PIN, and profile details stay as they are.
       </p>
       {!confirming ? (
         <button className="btn-secondary" onClick={() => setConfirming(true)}>Reset my data</button>

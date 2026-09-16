@@ -16,6 +16,27 @@ function StatusPill({ status }) {
   return <span className="pill" style={{ background: s.bg, color: s.color }}>{s.label}</span>
 }
 
+function firstNameOf(fullName) {
+  if (!fullName) return null
+  return fullName.trim().split(/\s+/)[0]
+}
+
+function messageUserAboutUsage(u) {
+  const firstName = firstNameOf(u.name) || 'there'
+  const subject = 'My Purrsonal Planner — please free up some space'
+  const body = [
+    `Hi ${firstName},`,
+    '',
+    "Your account is using a good chunk of data storage in My Purrsonal Planner. To keep things running smoothly, could you take a few minutes to clear out some old entries you no longer need?",
+    '',
+    'Go to My Profile → Manage My Data, and choose which types of data to clear — you can pick and choose so nothing important gets deleted.',
+    '',
+    'Thanks so much!',
+  ].join('\n')
+  const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(u.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  window.open(url, '_blank')
+}
+
 function ProgressBar({ percent, color }) {
   return (
     <div style={{ height: 8, borderRadius: 8, background: 'var(--teal-100)', overflow: 'hidden' }}>
@@ -182,6 +203,9 @@ export default function AdminPanel() {
                       Suspend
                     </button>
                   )}
+                  <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => messageUserAboutUsage(u)}>
+                    ✉ Message about data usage
+                  </button>
                   <button className="btn-ghost" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => resetDiaryPin(u.user_id)}>
                     Reset diary PIN → 0000
                   </button>
