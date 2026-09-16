@@ -58,6 +58,9 @@ Real push notifications (they arrive even if the app isn't open) need a few piec
 - Admin panel usage bars (internal) — an overall progress bar showing the project's real total database size vs. Supabase's free-tier 500 MB limit, plus a rough per-user "data usage" bar (a row count across every table in the app) to help spot a heavy user before the limit is a problem.
 - My Profile moved — it's no longer in the header next to Sign out; it's now a card in the Hub's main button grid, same as any other module (still reachable via a plain link if your trial has ended and the grid isn't shown).
 
+- My Profile → "Manage my data" — lets a user selectively clear specific categories of their own data (Calendar, Quick To-Do, Mood, Sleep, Goals, Gratitude, Secret Diary, Self-Care, Recipes, Grocery, Notebooks, Projects, Travel, Budgeting) instead of only an all-or-nothing reset — so if the admin asks them to free up space, they can choose what's safe to let go of and keep what matters. The original "clear everything at once" option is still there too, just relabeled to make the difference clear.
+- Admin panel → "Message about data usage" — one click opens a pre-filled Gmail compose window (to the user's registered email, greeting them by their first name from their profile, explaining they should visit My Profile → Manage My Data) so the admin can quickly nudge a heavy user without writing the email from scratch each time.
+
 ## What's built so far
 - Signup / login (Supabase email auth)
 - Onboarding wizard: name, birthday, height, weight (optional) → BMI category + suggested healthy weight range + diet focus (lose/maintain/gain)
