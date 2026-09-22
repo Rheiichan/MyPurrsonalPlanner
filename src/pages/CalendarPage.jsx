@@ -245,6 +245,16 @@ export default function CalendarPage() {
       )}
 
       <div className="card">
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 16, paddingBottom: 14, borderBottom: '2px solid var(--teal-100)',
+          }}
+        >
+          <button className="btn-ghost" onClick={() => navigate(-1)} aria-label="Previous" style={{ fontSize: 16 }}>◀</button>
+          <h2 style={{ fontSize: 18, textAlign: 'center' }}>{headerLabel}</h2>
+          <button className="btn-ghost" onClick={() => navigate(1)} aria-label="Next" style={{ fontSize: 16 }}>▶</button>
+        </div>
         {view === 'month' && (
           <MonthView
             cursor={cursor}
