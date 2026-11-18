@@ -101,6 +101,8 @@ function EditNotebookModal({ notebook, onClose, onSaved }) {
   )
 }
 
+const NOTEBOOK_COUNT = 10
+
 export default function NotebooksList() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -116,10 +118,10 @@ export default function NotebooksList() {
       .eq('user_id', user.id)
       .order('slot', { ascending: true })
 
-    if (!data || data.length < 5) {
+    if (!data || data.length < NOTEBOOK_COUNT) {
       const existingSlots = new Set((data || []).map((n) => n.slot))
       const missing = []
-      for (let slot = 1; slot <= 5; slot++) {
+      for (let slot = 1; slot <= NOTEBOOK_COUNT; slot++) {
         if (!existingSlots.has(slot)) {
           missing.push({ user_id: user.id, slot, name: `Notebook ${slot}`, color: NOTEBOOK_COLORS[(slot - 1) % NOTEBOOK_COLORS.length] })
         }
@@ -144,13 +146,13 @@ export default function NotebooksList() {
     <PageShell title="Notebooks">
       <h1 style={{ fontSize: 22, marginBottom: 4 }}>Notebooks</h1>
       <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
-        Five notebooks, all yours — rename them, recolor them, and fill them with whatever you like.
+        Ten notebooks, all yours — rename them, recolor them, and fill them with whatever you like.
       </p>
 
       {loading ? (
         <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>Loading…</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 16, maxWidth: 640 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 16, maxWidth: 760 }}>
           {notebooks.map((nb) => (
             <NotebookCover
               key={nb.id}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { MOOD_LEVELS, moodByLevel } from '../moods'
-import { IconMoodFace } from './icons'
+import { MoodFace } from '../themeAssets'
 
 function todayISO() {
   return new Date().toLocaleDateString('en-CA')
@@ -69,7 +69,7 @@ export default function MoodWidget({ compact = false }) {
                 opacity: todayLog && !isSelected ? 0.5 : 1,
               }}
             >
-              <IconMoodFace level={m.level} color={m.color} size={compact ? 26 : 32} />
+              <MoodFace level={m.level} color={m.color} size={compact ? 26 : 32} />
               {!compact && <span style={{ fontSize: 10, color: 'var(--ink-soft)', fontWeight: 700 }}>{m.label}</span>}
             </button>
           )

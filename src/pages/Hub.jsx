@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { MODULES } from '../modules'
-import mascot from '../assets/mascot.png'
+import { ThemedMascot, PageBanner } from '../themeAssets'
 import { IconCalendar } from '../components/icons'
 import MoodWidget from '../components/MoodWidget'
 import SleepWidget from '../components/SleepWidget'
@@ -112,7 +112,8 @@ export default function Hub() {
       <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
         {topBar}
         <div style={{ maxWidth: 560, margin: '0 auto', padding: '10px 24px 60px', textAlign: 'center' }}>
-          <img src={mascot} alt="" aria-hidden style={{ width: 72, height: 72, borderRadius: 22, margin: '0 auto 14px' }} />
+          <PageBanner />
+        <ThemedMascot size={72} radius={22} style={{ margin: '0 auto 14px'  }} />
           <h1 style={{ fontSize: 26 }}>
             {greeting}{profile?.name ? `, ${profile.name}` : ''}
           </h1>
@@ -151,7 +152,8 @@ export default function Hub() {
       )}
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '10px 24px 60px', textAlign: 'center' }}>
-        <img src={mascot} alt="" aria-hidden style={{ width: 72, height: 72, borderRadius: 22, margin: '0 auto 14px' }} />
+        <PageBanner />
+        <ThemedMascot size={72} radius={22} style={{ margin: '0 auto 14px'  }} />
         <h1 style={{ fontSize: 26 }}>
           {greeting}{profile?.name ? `, ${profile.name}` : ''}
         </h1>

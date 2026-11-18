@@ -31,9 +31,9 @@ export default function Signup() {
       return
     }
     // If email confirmation is off in Supabase, signUp already returns a
-    // live session — trial access starts immediately, so head to setup.
+    // live session — the app itself shows the activation screen until the admin confirms purchase.
     if (data.session) {
-      navigate('/setup')
+      navigate('/hub')
       return
     }
     setNeedsEmailConfirm(true)
@@ -46,7 +46,7 @@ export default function Signup() {
           <div style={{ fontSize: 40, marginBottom: 8 }}>💌</div>
           <h2 style={{ fontSize: 20, marginBottom: 8 }}>Almost there!</h2>
           <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>
-            We sent a confirmation link to <strong>{email}</strong>. Confirm your email, then log in to start your 30-day free trial — full access right away, no purchase needed yet.
+            We sent a confirmation link to <strong>{email}</strong>. Confirm your email, then log in. Your planner opens as soon as your purchase is confirmed.
           </p>
           <Link to="/login" className="btn-primary" style={{ display: 'inline-block', marginTop: 18, textDecoration: 'none' }}>
             Go to login

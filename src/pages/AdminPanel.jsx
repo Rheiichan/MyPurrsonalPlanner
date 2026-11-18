@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import { daysLeftInTrial } from '../access'
+import { DATA_CATEGORIES } from '../dataCategories'
 
 function StatusPill({ status }) {
   const map = {
@@ -52,13 +53,14 @@ const HEAVY_USER_ROW_REFERENCE = 500
 
 export default function AdminPanel() {
   const { isAdmin, profile } = useAuth()
-  const [tab, setTab] = useState('trial')
+  const [tab, setTab] = useState('pending')
   const [users, setUsers] = useState([])
   const [dbSizeMb, setDbSizeMb] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [noteDrafts, setNoteDrafts] = useState({})
   const [pinResetFor, setPinResetFor] = useState(null)
+  const [messagingUser, setMessagingUser] = useState(null)
 
   async function loadUsers() {
     setLoading(true)
@@ -110,7 +112,7 @@ export default function AdminPanel() {
     <PageShell title="Admin">
       <h1 style={{ fontSize: 22, marginBottom: 4 }}>Admin panel</h1>
       <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
-        New signups get a 30-day free trial automatically. Activate an account here once they've purchased the lifetime version, to keep their access after the trial ends.
+        The app is paid from day one: new signups land in Pending and see an activation screen. Press Activate once they've paid for the lifetime version. (Any older Trial accounts keep running until their trial ends.)
       </p>
 
       {dbSizeMb !== null && (
@@ -131,10 +133,10 @@ export default function AdminPanel() {
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
         {[
-          { key: 'trial', label: `Trial (${trial.length})` },
-          { key: 'active', label: `Active (${active.length})` },
-          { key: 'suspended', label: `Suspended (${suspended.length})` },
           { key: 'pending', label: `Pending (${pending.length})` },
+          { key: 'active', label: `Active (${active.length})` },
+          ...(trial.length > 0 ? [{ key: 'trial', label: `Old trials (${trial.length})` }] : []),
+          { key: 'suspended', label: `Suspended (${suspended.length})` },
           { key: 'all', label: `All (${users.length})` },
         ].map((t) => (
           <button
@@ -209,6 +211,9 @@ export default function AdminPanel() {
                   <button className="btn-ghost" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => resetDiaryPin(u.user_id)}>
                     Reset diary PIN → 0000
                   </button>
+                  <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => setMessagingUser(u)}>
+                    Message about data usage
+                  </button>
                 </div>
                 {pinResetFor === u.user_id && (
                   <p style={{ fontSize: 12, color: 'var(--teal-700)', marginTop: 8 }}>
@@ -220,6 +225,85 @@ export default function AdminPanel() {
           })}
         </div>
       )}
+
+      {messagingUser && (
+        <MessageModal user={messagingUser} onClose={() => setMessagingUser(null)} />
+      )}
     </PageShell>
+  )
+}
+
+function MessageModal({ user, onClose }) {
+  const [selected, setSelected] = useState(new Set())
+  const [note, setNote] = useState('')
+
+  function toggle(key) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  function sendEmail() {
+    const categoryLines = DATA_CATEGORIES.filter((c) => selected.has(c.key)).map((c) => `- ${c.label}`)
+    const subject = 'A quick note about your My Purrsonal Planner data'
+    const bodyParts = [
+      `Hi${user.name ? ' ' + user.name : ''},`,
+      '',
+      "Your account's data usage is getting up there, so it'd help a lot if you could clear out anything you don't need anymore.",
+    ]
+    if (categoryLines.length > 0) {
+      bodyParts.push('', "A few categories that might be worth clearing:", ...categoryLines)
+    }
+    bodyParts.push(
+      '',
+      'You can do this yourself anytime — just go to My Profile → "Manage my data" in the app. You get to pick exactly what to clear, so anything important stays put.',
+    )
+    if (note.trim()) bodyParts.push('', note.trim())
+    bodyParts.push('', 'Thanks!')
+
+    const mailto = `mailto:${encodeURIComponent(user.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyParts.join('\n'))}`
+    window.location.href = mailto
+    onClose()
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20, overflowY: 'auto' }}
+    >
+      <div className="card" style={{ maxWidth: 440, width: '100%', margin: '20px 0' }} onClick={(e) => e.stopPropagation()}>
+        <h3 style={{ fontSize: 17, marginBottom: 4 }}>Message {user.name || user.email}</h3>
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
+          This opens your email app with a message pre-filled — nothing sends automatically. Check the categories
+          you think are worth suggesting (this is just a suggestion in the email; they'll still choose for
+          themselves in the app).
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14, maxHeight: 240, overflowY: 'auto' }}>
+          {DATA_CATEGORIES.map((cat) => (
+            <label key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5, cursor: 'pointer' }}>
+              <input type="checkbox" checked={selected.has(cat.key)} onChange={() => toggle(cat.key)} />
+              {cat.label}
+            </label>
+          ))}
+        </div>
+        <div className="field">
+          <label htmlFor="msgNote">Add a personal note (optional)</label>
+          <textarea
+            id="msgNote"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={3}
+            style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '2px solid var(--teal-100)', fontFamily: 'inherit', fontSize: 13, resize: 'vertical' }}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          <button className="btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn-primary" style={{ flex: 1 }} onClick={sendEmail}>Open email</button>
+        </div>
+      </div>
+    </div>
   )
 }

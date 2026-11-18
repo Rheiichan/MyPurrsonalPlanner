@@ -4,25 +4,7 @@ import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import { pushSupported, getCurrentSubscription, enablePushNotifications, disablePushNotifications } from '../push'
 import { THEMES } from '../themes'
-
-const DATA_CATEGORIES = [
-  { key: 'calendar', label: 'Calendar events & to-dos', tables: ['calendar_events', 'daily_todos'] },
-  { key: 'quicktodo', label: 'Quick To-Do list', tables: ['quick_todos'] },
-  { key: 'mood', label: 'Mood logs', tables: ['mood_logs'] },
-  { key: 'sleep', label: 'Sleep logs', tables: ['sleep_logs'] },
-  { key: 'goals', label: 'Goals', tables: ['goals'] },
-  { key: 'gratitude', label: 'Gratitude journal & achievements', tables: ['gratitude_entries', 'achievements'] },
-  { key: 'diary', label: 'Secret diary entries', tables: ['diary_entries'] },
-  { key: 'selfcare', label: 'Self-care challenge progress', tables: ['selfcare_logs'] },
-  { key: 'recipes', label: 'Saved recipes', tables: ['user_recipes'] },
-  { key: 'grocery', label: 'Grocery list', tables: ['grocery_checks', 'grocery_custom_items'] },
-  { key: 'notebooks', label: 'Notebooks (resets to 5 blank ones)', tables: ['notebook_pages', 'notebooks'] },
-  { key: 'projects', label: 'Projects', tables: ['project_items', 'projects'] },
-  { key: 'travel', label: 'Travel planner trips', tables: ['trip_itinerary_items', 'trip_packing_items', 'trips'] },
-  { key: 'budgeting', label: 'Budgeting data', tables: ['budget_allocations', 'budget_incomes', 'budget_expenses', 'budget_savings'] },
-]
-
-const DATA_TABLES = DATA_CATEGORIES.flatMap((c) => c.tables)
+import { DATA_CATEGORIES, DATA_TABLES } from '../dataCategories'
 
 export default function Profile() {
   const { user, profile, refreshProfile } = useAuth()
@@ -173,7 +155,7 @@ function ThemeCard({ profile, userId, onSaved }) {
     <div className="card" style={{ marginBottom: 20 }}>
       <h3 style={{ fontSize: 15, marginBottom: 6 }}>Theme</h3>
       <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
-        Pick a pastel color pair for the whole app.
+        Pick a look for the whole app — colors, fonts and pictures can all change with the theme.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
         {Object.entries(THEMES).map(([key, theme]) => {
@@ -190,8 +172,9 @@ function ThemeCard({ profile, userId, onSaved }) {
               }}
             >
               <span style={{ display: 'flex' }}>
-                <span style={{ width: 18, height: 18, borderRadius: '50%', background: theme.swatch[0], border: '2px solid white', boxShadow: '0 0 0 1px var(--teal-100)' }} />
-                <span style={{ width: 18, height: 18, borderRadius: '50%', background: theme.swatch[1], border: '2px solid white', boxShadow: '0 0 0 1px var(--teal-100)', marginLeft: -8 }} />
+                {theme.swatch.map((c, i) => (
+                  <span key={i} style={{ width: 18, height: 18, borderRadius: '50%', background: c, border: '2px solid white', boxShadow: '0 0 0 1px var(--teal-100)', marginLeft: i ? -8 : 0 }} />
+                ))}
               </span>
               <span style={{ fontSize: 12.5, fontWeight: 700, textAlign: 'left' }}>
                 {theme.label}{isActive ? ' ✓' : ''}
@@ -339,7 +322,7 @@ function DangerZoneCard({ userId }) {
     <div className="card" style={{ border: '1px solid var(--pink-300)' }}>
       <h3 style={{ fontSize: 15, marginBottom: 6, color: 'var(--pink-700)' }}>Danger zone — clear everything at once</h3>
       <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>
-        Prefer to pick and choose? Use "Manage my data" above instead. This button permanently clears your calendar events, to-dos, quick to-do list, mood and sleep logs, goals, gratitude entries, achievements, secret diary entries, self-care challenge progress, saved recipes, grocery list, notebooks (notebooks will reset to 5 blank ones next time you open them), projects, trips, and budgeting data — all of it at once. Your account, PIN, and profile details stay as they are.
+        Prefer to pick and choose? Use "Manage my data" above instead. This button permanently clears your calendar events, to-dos, quick to-do list, mood and sleep logs, goals, gratitude entries, achievements, secret diary entries, self-care challenge progress, saved recipes, grocery list, notebooks (notebooks will reset to 10 blank ones next time you open them), projects, trips, and budgeting data — all of it at once. Your account, PIN, and profile details stay as they are.
       </p>
       {!confirming ? (
         <button className="btn-secondary" onClick={() => setConfirming(true)}>Reset my data</button>

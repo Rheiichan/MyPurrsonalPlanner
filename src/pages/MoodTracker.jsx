@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import MoodWidget from '../components/MoodWidget'
-import { IconMoodFace } from '../components/icons'
+import { MoodFace } from '../themeAssets'
 import { moodByLevel } from '../moods'
 
 export default function MoodTracker() {
@@ -58,7 +58,7 @@ export default function MoodTracker() {
                 className="card"
                 style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'none', border: '1px solid var(--teal-100)' }}
               >
-                <IconMoodFace level={log.mood_level} color={mood.color} size={30} />
+                <MoodFace level={log.mood_level} color={mood.color} size={30} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700, fontSize: 14 }}>{mood.label}</div>
                   <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>

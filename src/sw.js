@@ -1,6 +1,6 @@
 import { precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
-import { NetworkFirst } from 'workbox-strategies'
+import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 
@@ -21,6 +21,19 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 14 }),
       new CacheableResponsePlugin({ statuses: [0, 200] }),
+    ],
+  })
+)
+
+// Theme pictures (public/themes/*) are cached after first view so a
+// Miku/Chiikawa theme still looks right offline.
+registerRoute(
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/themes/'),
+  new StaleWhileRevalidate({
+    cacheName: 'theme-images',
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 60 }),
+      new CacheableResponsePlugin({ statuses: [200] }),
     ],
   })
 )

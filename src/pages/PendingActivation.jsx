@@ -15,7 +15,7 @@ export default function PendingActivation() {
         <p style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.5 }}>
           {suspended
             ? "Your planner access has been paused. If you think this is a mistake, please reach out so we can sort it out."
-            : "Your account is created — we just need to confirm your purchase before opening up your planner. This is usually done within a day."}
+            : "Your account is created. My Purrsonal Planner is a paid app — once your purchase is confirmed by the admin, your planner opens up right here. Already paid? Hang tight, this is usually done within a day."}
         </p>
         {profile?.admin_note && (
           <p style={{ fontSize: 13, color: 'var(--pink-700)', marginTop: 10 }}>{profile.admin_note}</p>
