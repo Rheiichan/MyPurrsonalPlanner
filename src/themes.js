@@ -11,9 +11,14 @@
 // back to the default drawing, so you can add images a few at a time.
 const img = (key, file) => `/themes/${key}/${file}`
 
+const MENU_KEYS = ['calendar', 'mood', 'feeling', 'goals', 'gratitude', 'secret-diary', 'budget', 'recipes', 'fitness', 'sleep', 'selfcare', 'grocery', 'projects', 'travel', 'notebooks', 'profile']
+
 function photoSet(key) {
   return {
     mascot: img(key, 'mascot.png'),
+    favicon: img(key, 'favicon.png'),
+    // Hub menu button pictures: menu-<module>.png (e.g. menu-calendar.png)
+    menu: Object.fromEntries(MENU_KEYS.map((k) => [k, img(key, `menu-${k}.png`)])),
     moods: { 1: img(key, 'mood-1.png'), 2: img(key, 'mood-2.png'), 3: img(key, 'mood-3.png'), 4: img(key, 'mood-4.png'), 5: img(key, 'mood-5.png') },
     // route path -> banner picture shown at the top of that page
     banners: Object.fromEntries(
@@ -134,5 +139,13 @@ export function applyTheme(themeKey) {
   root.style.setProperty('--radius-sm', shape.sm)
   root.style.setProperty('--radius-md', shape.md)
   root.style.setProperty('--radius-lg', shape.lg)
+  // Swap the browser-tab / home-screen-shortcut icon if the theme has one
+  // (an already-installed PWA icon is fixed by the phone, so this only
+  // affects the tab icon and new "Add to Home Screen" on some browsers).
+  const link = document.querySelector('link[rel="icon"]')
+  if (link) {
+    if (!link.dataset.orig) link.dataset.orig = link.getAttribute('href')
+    link.setAttribute('href', theme.images?.favicon || link.dataset.orig)
+  }
   root.dataset.theme = themeKey && THEMES[themeKey] ? themeKey : DEFAULT_THEME
 }

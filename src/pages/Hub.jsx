@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { MODULES } from '../modules'
-import { ThemedMascot, PageBanner } from '../themeAssets'
+import { ThemedMascot, PageBanner, MenuIcon } from '../themeAssets'
 import { IconCalendar } from '../components/icons'
 import MoodWidget from '../components/MoodWidget'
 import SleepWidget from '../components/SleepWidget'
@@ -218,7 +218,7 @@ export default function Hub() {
                     color: 'var(--teal-700)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <Icon width="21" height="21" />
+                  <MenuIcon moduleKey={m.key} Icon={Icon} />
                 </div>
                 <span style={{ fontWeight: 700, fontSize: 13 }}>{m.label}</span>
               </Link>

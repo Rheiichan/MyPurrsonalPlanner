@@ -21,10 +21,11 @@ function SafeImg({ src, fallback, ...rest }) {
 export function ThemedMascot({ size = 72, radius = 22, style }) {
   const theme = useTheme()
   const base = { width: size, height: size, borderRadius: radius, objectFit: 'cover', ...style }
+  const themed = { ...base, objectFit: 'contain', background: 'white', padding: Math.round(size * 0.08) }
   return (
     <SafeImg
       src={theme.images?.mascot}
-      alt="" aria-hidden style={base}
+      alt="" aria-hidden style={themed}
       fallback={<img src={defaultMascot} alt="" aria-hidden style={base} />}
     />
   )
@@ -36,7 +37,7 @@ export function MoodFace({ level, color, size = 32 }) {
     <SafeImg
       src={theme.images?.moods?.[level]}
       alt="" aria-hidden
-      style={{ width: size * 1.5, height: size * 1.5, objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+      style={{ width: size * 1.5, height: size * 1.5, objectFit: 'contain' }}
       fallback={<IconMoodFace level={level} color={color} size={size} />}
     />
   )
@@ -53,6 +54,20 @@ export function PageBanner() {
       key={src}
       src={src} alt="" aria-hidden
       style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 'var(--radius-lg)', marginBottom: 20, display: 'block' }}
+    />
+  )
+}
+
+// Hub menu button icon: the theme's own picture for that module if it
+// has one, otherwise the normal line icon.
+export function MenuIcon({ moduleKey, Icon }) {
+  const theme = useTheme()
+  return (
+    <SafeImg
+      src={theme.images?.menu?.[moduleKey]}
+      alt="" aria-hidden
+      style={{ width: 30, height: 30, objectFit: 'contain' }}
+      fallback={<Icon width="21" height="21" />}
     />
   )
 }
