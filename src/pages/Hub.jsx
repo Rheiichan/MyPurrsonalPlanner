@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { MODULES } from '../modules'
-import { ThemedMascot, PageBanner, MenuIcon } from '../themeAssets'
+import { ThemedMascot, PageBanner, MenuIcon, ThemeHeader } from '../themeAssets'
 import { IconCalendar } from '../components/icons'
 import MoodWidget from '../components/MoodWidget'
 import SleepWidget from '../components/SleepWidget'
@@ -112,7 +112,8 @@ export default function Hub() {
       <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
         {topBar}
         <div style={{ maxWidth: 560, margin: '0 auto', padding: '10px 24px 60px', textAlign: 'center' }}>
-          <PageBanner />
+          <ThemeHeader />
+        <PageBanner />
         <ThemedMascot size={72} radius={22} style={{ margin: '0 auto 14px'  }} />
           <h1 style={{ fontSize: 26 }}>
             {greeting}{profile?.name ? `, ${profile.name}` : ''}
@@ -152,6 +153,7 @@ export default function Hub() {
       )}
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '10px 24px 60px', textAlign: 'center' }}>
+        <ThemeHeader />
         <PageBanner />
         <ThemedMascot size={72} radius={22} style={{ margin: '0 auto 14px'  }} />
         <h1 style={{ fontSize: 26 }}>

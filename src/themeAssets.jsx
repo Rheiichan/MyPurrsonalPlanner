@@ -87,3 +87,16 @@ export function PageIcon() {
     />
   )
 }
+
+// Wide header picture across the top of every page, if the theme has one.
+export function ThemeHeader() {
+  const theme = useTheme()
+  const src = theme.images?.header
+  return (
+    <SafeImg
+      key={src}
+      src={src} alt="" aria-hidden
+      style={{ display: 'block', width: '100%', maxWidth: 760, maxHeight: 130, objectFit: 'contain', margin: '0 auto 14px' }}
+    />
+  )
+}

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { ThemedMascot, PageBanner, PageIcon } from '../themeAssets'
+import { ThemedMascot, PageBanner, PageIcon, ThemeHeader } from '../themeAssets'
 import { IconHome } from './icons'
 
 export default function PageShell({ children, title }) {
@@ -31,6 +31,7 @@ export default function PageShell({ children, title }) {
         </button>
       </header>
       <div style={{ padding: '28px 32px 60px' }} className="content-pad">
+        <ThemeHeader />
         <PageBanner />
         <PageIcon />
         {children}

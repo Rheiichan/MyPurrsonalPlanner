@@ -16,6 +16,7 @@ const MENU_KEYS = ['calendar', 'mood', 'feeling', 'goals', 'gratitude', 'secret-
 function photoSet(key) {
   return {
     mascot: img(key, 'mascot.png'),
+    header: img(key, 'header.png'),   // wide picture across the top of every page
     favicon: img(key, 'favicon.png'),
     // Hub menu button pictures: menu-<module>.png (e.g. menu-calendar.png)
     menu: Object.fromEntries(MENU_KEYS.map((k) => [k, img(key, `menu-${k}.png`)])),
