@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { ThemedMascot, PageBanner, PageIcon, ThemeHeader } from '../themeAssets'
+import { HeaderIcon, PageBanner, ThemeHeader } from '../themeAssets'
 import { IconHome } from './icons'
 
 export default function PageShell({ children, title }) {
@@ -15,7 +15,7 @@ export default function PageShell({ children, title }) {
         }}
       >
         <Link to="/hub" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <ThemedMascot size={34} radius={10} />
+          <HeaderIcon size={34} radius={10} />
           <span className="display" style={{ fontSize: 15, color: 'white', display: 'flex', alignItems: 'center', gap: 6 }}>
             <IconHome style={{ color: 'inherit' }} /> Home
           </span>
@@ -33,7 +33,6 @@ export default function PageShell({ children, title }) {
       <div style={{ padding: '28px 32px 60px' }} className="content-pad">
         <ThemeHeader />
         <PageBanner />
-        <PageIcon />
         {children}
       </div>
       <style>{`

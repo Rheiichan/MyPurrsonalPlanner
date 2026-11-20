@@ -100,3 +100,27 @@ export function ThemeHeader() {
     />
   )
 }
+
+// Top-left icon in the page header: the current page's own menu picture
+// if the theme has one, otherwise the theme's normal mascot.
+export function HeaderIcon({ size = 34, radius = 10 }) {
+  const theme = useTheme()
+  const { pathname } = useLocation()
+  const route = pathname.split('/')[1]
+  const src = theme.images?.menu?.[route]
+  const style = { width: size, height: size, borderRadius: radius, objectFit: 'contain', background: 'white', padding: Math.round(size * 0.08) }
+  return (
+    <SafeImg
+      key={src}
+      src={src} alt="" aria-hidden style={style}
+      fallback={<ThemedMascot size={size} radius={radius} />}
+    />
+  )
+}
+
+// Hub mascot that steps aside when the theme has a wide header picture.
+export function HubMascot(props) {
+  const theme = useTheme()
+  if (theme.images?.header) return null
+  return <ThemedMascot {...props} />
+}
