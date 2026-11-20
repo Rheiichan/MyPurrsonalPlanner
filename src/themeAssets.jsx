@@ -71,3 +71,19 @@ export function MenuIcon({ moduleKey, Icon }) {
     />
   )
 }
+
+// The page's own menu picture (same one used on the Hub button), shown
+// at the top of that page so each page carries its icon.
+export function PageIcon() {
+  const theme = useTheme()
+  const { pathname } = useLocation()
+  const route = pathname.split('/')[1]
+  const src = theme.images?.menu?.[route]
+  return (
+    <SafeImg
+      key={src}
+      src={src} alt="" aria-hidden
+      style={{ width: 72, height: 72, objectFit: 'contain', display: 'block', margin: '0 auto 14px' }}
+    />
+  )
+}
