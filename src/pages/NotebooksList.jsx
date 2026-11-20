@@ -4,31 +4,36 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import { NOTEBOOK_COLORS } from '../notebookColors'
+import { NotebookCoverImage, useTheme } from '../themeAssets'
 
 function NotebookCover({ notebook, onClick, onEdit }) {
+  const hasPictures = !!useTheme().images?.notebookCovers
   return (
     <div style={{ position: 'relative' }}>
       <button
         onClick={onClick}
         style={{
           width: '100%', aspectRatio: '3 / 4', border: 'none', borderRadius: '4px 10px 10px 4px',
-          background: notebook.color, position: 'relative', cursor: 'pointer',
+          background: hasPictures ? 'white' : notebook.color, position: 'relative', cursor: 'pointer',
           boxShadow: '0 6px 14px rgba(0,0,0,0.15)', overflow: 'hidden',
+          ...(hasPictures ? { border: '1px solid var(--teal-300)' } : {}),
           display: 'flex', alignItems: 'flex-end', padding: 14,
         }}
       >
+        <NotebookCoverImage slot={notebook.slot} />
         {/* spine */}
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 10, background: 'rgba(0,0,0,0.15)' }} />
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 10, background: hasPictures ? notebook.color : 'rgba(0,0,0,0.15)' }} />
         {/* binding rings */}
         <div style={{ position: 'absolute', left: 3, top: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }} />
+            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: hasPictures ? 'white' : 'rgba(255,255,255,0.7)', boxShadow: hasPictures ? '0 0 0 1px rgba(0,0,0,0.2)' : 'none' }} />
           ))}
         </div>
         <span
           style={{
             color: 'white', fontWeight: 800, fontSize: 14, textAlign: 'left', paddingLeft: 8,
             textShadow: '0 1px 3px rgba(0,0,0,0.25)', wordBreak: 'break-word',
+            position: 'relative', ...(hasPictures ? { background: 'rgba(255,255,255,0.85)', color: 'var(--ink)', textShadow: 'none', borderRadius: 8, padding: '3px 8px', marginLeft: 6 } : {}),
           }}
         >
           {notebook.name}
