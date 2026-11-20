@@ -9,6 +9,7 @@ export const DATA_CATEGORIES = [
   { key: 'goals', label: 'Goals', tables: ['goals'] },
   { key: 'gratitude', label: 'Gratitude journal & achievements', tables: ['gratitude_entries', 'achievements'] },
   { key: 'diary', label: 'Secret diary entries', tables: ['diary_entries'] },
+  { key: 'fitness', label: 'Fitness logs (calories & weight)', tables: ['food_logs', 'weight_logs'] },
   { key: 'selfcare', label: 'Self-care challenge progress', tables: ['selfcare_logs'] },
   { key: 'recipes', label: 'Saved recipes', tables: ['user_recipes'] },
   { key: 'grocery', label: 'Grocery list', tables: ['grocery_checks', 'grocery_custom_items'] },

@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
+import FolderTabs from '../components/FolderTabs'
+import FitnessCalories from './FitnessCalories'
+import FitnessWeight from './FitnessWeight'
 import { DIET_MODES, DIET_META, DIET_INFO, ACTIVITIES, FALLBACK_ACTIVITIES } from '../dietData'
 import {
   calcBmi, bmiCategory, calcTDEE, idealWeight, calcAge,
@@ -137,6 +140,7 @@ function FitnessSetup({ profile, onDone }) {
 function FitnessDashboard({ profile, onEdit }) {
   const [showInfo, setShowInfo] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [tab, setTab] = useState('overview')
 
   if (editing) {
     return <FitnessSetup profile={profile} onDone={() => { setEditing(false); onEdit() }} />
@@ -164,6 +168,14 @@ function FitnessDashboard({ profile, onEdit }) {
         Mode: <strong style={{ color: 'var(--ink)' }}>{meta?.emoji} {profile.diet_category}</strong> — {meta?.tagline}
       </p>
 
+      <FolderTabs
+        tabs={[{ key: 'overview', label: 'Overview' }, { key: 'calories', label: 'Calories' }, { key: 'weight', label: 'Weight' }]}
+        active={tab}
+        onChange={setTab}
+      >
+      {tab === 'calories' && <FitnessCalories goalCals={goalCals} />}
+      {tab === 'weight' && <FitnessWeight profile={profile} onProfileChanged={onEdit} />}
+      {tab === 'overview' && (<>
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 18 }}>
         <StatCard label="BMI" value={bmi.toFixed(1)} sub={bmiCat.label} color={bmiCat.color} />
@@ -239,6 +251,8 @@ function FitnessDashboard({ profile, onEdit }) {
           <ExerciseCard key={i} activity={a} />
         ))}
       </div>
+      </>)}
+      </FolderTabs>
     </PageShell>
   )
 }
