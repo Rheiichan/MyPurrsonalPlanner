@@ -286,10 +286,12 @@ export default function AdminPanel() {
                           ✉ Cancellation notice
                         </button>
                       )}
-                      <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13, color: '#c0392b', borderColor: '#f3b4ad' }} onClick={() => deleteUnpaid(u)}>
-                        🗑 Delete user
-                      </button>
                     </>
+                  )}
+                  {(u.account_status === 'pending_payment' || u.account_status === 'suspended') && (
+                    <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13, color: '#c0392b', borderColor: '#f3b4ad' }} onClick={() => deleteUnpaid(u)}>
+                      🗑 Delete user
+                    </button>
                   )}
                   {u.account_status !== 'suspended' && (
                     <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => suspend(u.user_id)}>
