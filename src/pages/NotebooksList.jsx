@@ -8,28 +8,19 @@ import { NotebookCoverImage, useTheme } from '../themeAssets'
 
 function NotebookCover({ notebook, onClick, onEdit }) {
   const hasPictures = !!useTheme().images?.notebookCovers
-  // All notebooks are white (no per-notebook color); a soft theme-colored spine and outline keep them looking finished.
+  // Plain white cover — the picture (if any) already has its own spine/rings.
   return (
     <div style={{ position: 'relative' }}>
       <button
         onClick={onClick}
         style={{
-          width: '100%', aspectRatio: '3 / 4', border: 'none', borderRadius: '4px 10px 10px 4px',
+          width: '100%', aspectRatio: '3 / 4', border: 'none', borderRadius: 12,
           background: 'white', position: 'relative', cursor: 'pointer',
           boxShadow: '0 6px 14px rgba(0,0,0,0.15)', overflow: 'hidden',
-          border: '1px solid var(--teal-300)',
           display: 'flex', alignItems: 'flex-end', padding: 14,
         }}
       >
         <NotebookCoverImage slot={notebook.slot} />
-        {/* spine */}
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 10, background: 'var(--teal-300)' }} />
-        {/* binding rings */}
-        <div style={{ position: 'absolute', left: 3, top: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'white', boxShadow: '0 0 0 1px rgba(0,0,0,0.2)' }} />
-          ))}
-        </div>
         <span
           style={{
             fontWeight: 800, fontSize: 14, textAlign: 'left', wordBreak: 'break-word',
