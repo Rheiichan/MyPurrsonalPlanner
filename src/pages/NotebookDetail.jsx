@@ -92,7 +92,7 @@ export default function NotebookDetail() {
   return (
     <PageShell title={notebook.name}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, flexWrap: 'wrap', gap: 10 }}>
-        <h1 style={{ fontSize: 22, color: notebook.color }}>{notebook.name}</h1>
+        <h1 style={{ fontSize: 22 }}>{notebook.name}</h1>
         <button className="btn-ghost" style={{ fontSize: 13 }} onClick={() => navigate('/notebooks')}>← All notebooks</button>
       </div>
       <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 18 }}>

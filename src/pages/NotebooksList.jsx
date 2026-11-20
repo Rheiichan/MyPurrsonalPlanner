@@ -8,32 +8,32 @@ import { NotebookCoverImage, useTheme } from '../themeAssets'
 
 function NotebookCover({ notebook, onClick, onEdit }) {
   const hasPictures = !!useTheme().images?.notebookCovers
+  // All notebooks are white (no per-notebook color); a soft theme-colored spine and outline keep them looking finished.
   return (
     <div style={{ position: 'relative' }}>
       <button
         onClick={onClick}
         style={{
           width: '100%', aspectRatio: '3 / 4', border: 'none', borderRadius: '4px 10px 10px 4px',
-          background: hasPictures ? 'white' : notebook.color, position: 'relative', cursor: 'pointer',
+          background: 'white', position: 'relative', cursor: 'pointer',
           boxShadow: '0 6px 14px rgba(0,0,0,0.15)', overflow: 'hidden',
-          ...(hasPictures ? { border: '1px solid var(--teal-300)' } : {}),
+          border: '1px solid var(--teal-300)',
           display: 'flex', alignItems: 'flex-end', padding: 14,
         }}
       >
         <NotebookCoverImage slot={notebook.slot} />
         {/* spine */}
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 10, background: hasPictures ? notebook.color : 'rgba(0,0,0,0.15)' }} />
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 10, background: 'var(--teal-300)' }} />
         {/* binding rings */}
         <div style={{ position: 'absolute', left: 3, top: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: hasPictures ? 'white' : 'rgba(255,255,255,0.7)', boxShadow: hasPictures ? '0 0 0 1px rgba(0,0,0,0.2)' : 'none' }} />
+            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'white', boxShadow: '0 0 0 1px rgba(0,0,0,0.2)' }} />
           ))}
         </div>
         <span
           style={{
-            color: 'white', fontWeight: 800, fontSize: 14, textAlign: 'left', paddingLeft: 8,
-            textShadow: '0 1px 3px rgba(0,0,0,0.25)', wordBreak: 'break-word',
-            position: 'relative', ...(hasPictures ? { background: 'rgba(255,255,255,0.85)', color: 'var(--ink)', textShadow: 'none', borderRadius: 8, padding: '3px 8px', marginLeft: 6 } : {}),
+            fontWeight: 800, fontSize: 14, textAlign: 'left', wordBreak: 'break-word',
+            position: 'relative', background: 'rgba(255,255,255,0.85)', color: 'var(--ink)', borderRadius: 8, padding: '3px 8px', marginLeft: 6,
           }}
         >
           {notebook.name}
@@ -56,13 +56,12 @@ function NotebookCover({ notebook, onClick, onEdit }) {
 
 function EditNotebookModal({ notebook, onClose, onSaved }) {
   const [name, setName] = useState(notebook.name)
-  const [color, setColor] = useState(notebook.color)
   const [saving, setSaving] = useState(false)
 
   async function save(e) {
     e.preventDefault()
     setSaving(true)
-    await supabase.from('notebooks').update({ name: name.trim() || 'Notebook', color }).eq('id', notebook.id)
+    await supabase.from('notebooks').update({ name: name.trim() || 'Notebook' }).eq('id', notebook.id)
     setSaving(false)
     onSaved()
   }
@@ -78,23 +77,6 @@ function EditNotebookModal({ notebook, onClose, onSaved }) {
           <div className="field">
             <label htmlFor="notebookName">Name</label>
             <input id="notebookName" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-          </div>
-          <div className="field">
-            <label>Color</label>
-            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-              {NOTEBOOK_COLORS.map((c) => (
-                <button
-                  type="button"
-                  key={c}
-                  onClick={() => setColor(c)}
-                  aria-label={c}
-                  style={{
-                    width: 30, height: 30, borderRadius: '50%', background: c, cursor: 'pointer',
-                    border: color === c ? '3px solid var(--ink)' : '3px solid transparent',
-                  }}
-                />
-              ))}
-            </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
             <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
@@ -151,7 +133,7 @@ export default function NotebooksList() {
     <PageShell title="Notebooks">
       <h1 style={{ fontSize: 22, marginBottom: 4 }}>Notebooks</h1>
       <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
-        Ten notebooks, all yours — rename them, recolor them, and fill them with whatever you like.
+        Ten notebooks, all yours — rename them and fill them with whatever you like.
       </p>
 
       {loading ? (
