@@ -18,6 +18,8 @@ function photoSet(key) {
     mascot: img(key, 'mascot.png'),
     header: img(key, 'header.png'),   // wide picture across the top of every page
     favicon: img(key, 'favicon.png'),
+    // Notebook cover pictures: notebook-1.png ... notebook-10.png; notebook-cover.png is used for any slot without its own
+    notebookCovers: { default: img(key, 'notebook-cover.png'), ...Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, img(key, `notebook-${i + 1}.png`)])) },
     // Hub menu button pictures: menu-<module>.png (e.g. menu-calendar.png)
     menu: Object.fromEntries(MENU_KEYS.map((k) => [k, img(key, `menu-${k}.png`)])),
     moods: { 1: img(key, 'mood-1.png'), 2: img(key, 'mood-2.png'), 3: img(key, 'mood-3.png'), 4: img(key, 'mood-4.png'), 5: img(key, 'mood-5.png') },

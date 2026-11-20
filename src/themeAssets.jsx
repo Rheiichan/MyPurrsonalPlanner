@@ -124,3 +124,15 @@ export function HubMascot(props) {
   if (theme.images?.header) return null
   return <ThemedMascot {...props} />
 }
+
+// Picture on a notebook cover (fills the whole cover — portrait 3:4 images fit best): that slot's own image, else the theme's generic cover picture.
+export function NotebookCoverImage({ slot }) {
+  const theme = useTheme()
+  const covers = theme.images?.notebookCovers
+  if (!covers) return null
+  const style = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }
+  return (
+    <SafeImg src={covers[slot]} alt="" aria-hidden style={style}
+      fallback={<SafeImg src={covers.default} alt="" aria-hidden style={style} />} />
+  )
+}
