@@ -46,7 +46,7 @@ export default function Signup() {
           <div style={{ fontSize: 40, marginBottom: 8 }}>💌</div>
           <h2 style={{ fontSize: 20, marginBottom: 8 }}>Almost there!</h2>
           <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>
-            We sent a confirmation link to <strong>{email}</strong>. Confirm your email, then log in. Your planner opens as soon as your purchase is confirmed.
+            We sent a confirmation link to <strong>{email}</strong>. Confirm your email, then log in. Next you'll see the planner's features and the payment link (on sale for ₱299). Your planner opens as soon as your payment is verified.
           </p>
           <Link to="/login" className="btn-primary" style={{ display: 'inline-block', marginTop: 18, textDecoration: 'none' }}>
             Go to login
