@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { ThemedMascot } from '../themeAssets'
-import { PRICE_NOW, PRICE_ORIGINAL, CURRENCY, PAYMENT_URL } from '../pricing'
+import { PRICE_NOW, PRICE_ORIGINAL, CURRENCY, PAYMENT_URL, REGISTRATION_DAYS } from '../pricing'
 
 const FEATURES = [
   ['Calendar', 'Month & week views, daily agenda, events and to-dos'],
@@ -26,6 +27,18 @@ export default function PendingActivation() {
   const { profile, signOut, refreshProfile, user } = useAuth()
   const suspended = profile?.account_status === 'suspended'
   const [checking, setChecking] = useState(false)
+  const [slots, setSlots] = useState(null)
+
+  useEffect(() => {
+    supabase.rpc('get_slots_info').then(({ data }) => {
+      const row = Array.isArray(data) ? data[0] : data
+      if (row) setSlots(row)
+    })
+  }, [])
+
+  const deadline = profile?.created_at ? new Date(new Date(profile.created_at).getTime() + REGISTRATION_DAYS * 86400000) : null
+  const msLeft = deadline ? deadline - new Date() : null
+  const soldOut = slots && slots.remaining <= 0
 
   async function checkAgain() {
     setChecking(true)
@@ -68,13 +81,33 @@ export default function PendingActivation() {
         <p style={{ fontSize: 13, color: 'var(--ink-soft)', margin: '6px 0 16px' }}>
           Digital Purrsonal Planner · one-time payment · lifetime access
         </p>
-        <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none' }}>
-          Buy now — {CURRENCY}{PRICE_NOW}
-        </a>
-        <p style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginTop: 12, lineHeight: 1.5 }}>
-          Please pay using this email so we can match your payment:<br />
-          <strong style={{ color: 'var(--ink)' }}>{user?.email}</strong>
-        </p>
+        {slots && (
+          <p style={{ fontSize: 14, fontWeight: 800, margin: '0 0 14px', color: soldOut ? '#c0392b' : 'var(--teal-700)' }}>
+            {soldOut ? 'All slots are taken for now' : `🎟 Only ${slots.remaining} of ${slots.max_slots} slots left`}
+          </p>
+        )}
+        {soldOut ? (
+          <p style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.5, margin: 0 }}>
+            We're limiting early access to {slots.max_slots} people. Your account is saved — we'll let you know if a slot opens up.
+          </p>
+        ) : (
+          <>
+            <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none' }}>
+              Buy now — {CURRENCY}{PRICE_NOW}
+            </a>
+            <p style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginTop: 12, lineHeight: 1.5 }}>
+              Please pay using this email so we can match your payment:<br />
+              <strong style={{ color: 'var(--ink)' }}>{user?.email}</strong>
+            </p>
+          </>
+        )}
+        {deadline && (
+          <p style={{ fontSize: 12.5, marginTop: 10, marginBottom: 0, lineHeight: 1.5, color: msLeft < 0 ? '#c0392b' : 'var(--pink-700)', fontWeight: 700 }}>
+            {msLeft < 0
+              ? 'Your 3-day payment window has passed — your registration may be cancelled soon. Pay now to keep it.'
+              : `⏳ Registration is cancelled if payment isn't made within ${REGISTRATION_DAYS} days of signing up — by ${deadline.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.`}
+          </p>
+        )}
       </div>
 
       <div className="card" style={{ marginBottom: 16, background: 'var(--teal-100)' }}>

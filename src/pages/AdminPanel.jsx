@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import { daysLeftInTrial } from '../access'
 import { DATA_CATEGORIES } from '../dataCategories'
+import { REGISTRATION_DAYS, PAYMENT_URL, PRICE_NOW, CURRENCY } from '../pricing'
 
 function StatusPill({ status }) {
   const map = {
@@ -38,6 +39,47 @@ function messageUserAboutUsage(u) {
   window.open(url, '_blank')
 }
 
+function openGmail(email, subject, body) {
+  window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
+}
+
+// Time left in the payment window for an unpaid signup.
+function registrationClock(u) {
+  if (!u.created_at) return null
+  const deadline = new Date(new Date(u.created_at).getTime() + REGISTRATION_DAYS * 86400000)
+  const ms = deadline - new Date()
+  const abs = Math.abs(ms)
+  const d = Math.floor(abs / 86400000)
+  const h = Math.floor((abs % 86400000) / 3600000)
+  const text = d > 0 ? `${d}d ${h}h` : `${h}h ${Math.floor((abs % 3600000) / 60000)}m`
+  return { deadline, overdue: ms < 0, text }
+}
+
+function emailPaymentReminder(u) {
+  const c = registrationClock(u)
+  openGmail(u.email, 'Your My Purrsonal Planner registration — payment reminder', [
+    `Hi${u.name ? ' ' + u.name : ''},`,
+    '',
+    `Thanks for signing up for My Purrsonal Planner! Your spot is reserved, but your registration will be cancelled if payment isn't made within ${REGISTRATION_DAYS} days of signing up${c ? ` (by ${c.deadline.toLocaleDateString()})` : ''}.`,
+    '',
+    `The digital planner is on sale for ${CURRENCY}${PRICE_NOW}. You can pay here: ${PAYMENT_URL}`,
+    `Please pay using this email (${u.email}) so we can match your payment.`,
+    '',
+    'Thank you!',
+  ].join('\n'))
+}
+
+function emailCancellation(u) {
+  openGmail(u.email, 'Your My Purrsonal Planner registration has been cancelled', [
+    `Hi${u.name ? ' ' + u.name : ''},`,
+    '',
+    `Since we didn't receive payment within ${REGISTRATION_DAYS} days, your My Purrsonal Planner registration has been cancelled and your slot released.`,
+    `If you'd still like the planner, you're welcome to sign up again while slots last: ${window.location.origin}`,
+    '',
+    'Thank you!',
+  ].join('\n'))
+}
+
 function ProgressBar({ percent, color }) {
   return (
     <div style={{ height: 8, borderRadius: 8, background: 'var(--teal-100)', overflow: 'hidden' }}>
@@ -61,6 +103,8 @@ export default function AdminPanel() {
   const [noteDrafts, setNoteDrafts] = useState({})
   const [pinResetFor, setPinResetFor] = useState(null)
   const [messagingUser, setMessagingUser] = useState(null)
+  const [slots, setSlots] = useState(null)
+  const [, setTick] = useState(0)
 
   async function loadUsers() {
     setLoading(true)
@@ -69,6 +113,7 @@ export default function AdminPanel() {
       supabase.rpc('admin_get_usage_stats'),
       supabase.rpc('admin_get_db_size_bytes'),
     ])
+    supabase.rpc('get_slots_info').then(({ data: s }) => { const r = Array.isArray(s) ? s[0] : s; if (r) setSlots(r) })
     if (error) setError(error.message)
     else if (sizeError) setError(sizeError.message)
     setUsers(data || [])
@@ -80,11 +125,21 @@ export default function AdminPanel() {
     if (isAdmin) loadUsers()
   }, [isAdmin])
 
+  // re-render every minute so the payment-window timers stay current
+  useEffect(() => { const t = setInterval(() => setTick((n) => n + 1), 60000); return () => clearInterval(t) }, [])
+
   if (!isAdmin) return <Navigate to="/hub" replace />
 
   async function activate(userId) {
     const note = noteDrafts[userId] || null
     const { error } = await supabase.rpc('admin_activate_user', { p_user_id: userId, p_note: note })
+    if (error) { setError(error.message); return }
+    loadUsers()
+  }
+
+  async function deleteUnpaid(u) {
+    if (!window.confirm(`Delete ${u.name || u.email} (${u.email}) permanently? This removes their account and cannot be undone.`)) return
+    const { error } = await supabase.rpc('admin_delete_unpaid_user', { p_user_id: u.user_id })
     if (error) { setError(error.message); return }
     loadUsers()
   }
@@ -114,6 +169,19 @@ export default function AdminPanel() {
       <p style={{ color: 'var(--ink-soft)', fontSize: 13, marginBottom: 20 }}>
         The app is paid from day one: new signups land in Pending and see an activation screen. Press Activate once they've paid for the lifetime version. (Any older Trial accounts keep running until their trial ends.)
       </p>
+
+      {slots && (
+        <div className="card" style={{ marginBottom: 20, background: 'var(--pink-100)', border: 'none' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
+            <span style={{ fontWeight: 700 }}>Paid slots (active users)</span>
+            <span>{slots.taken} / {slots.max_slots} taken · {slots.remaining} left</span>
+          </div>
+          <ProgressBar percent={(slots.taken / slots.max_slots) * 100} color={slots.remaining === 0 ? '#f87171' : 'var(--pink-500)'} />
+          <p style={{ fontSize: 11.5, color: 'var(--ink-soft)', marginTop: 6, marginBottom: 0 }}>
+            Customers see the remaining slots on their purchase page. To change the limit, run in Supabase: update app_settings set value = '30' where key = 'max_active_users';
+          </p>
+        </div>
+      )}
 
       {dbSizeMb !== null && (
         <div className="card" style={{ marginBottom: 20, background: 'var(--teal-100)', border: 'none' }}>
@@ -178,6 +246,14 @@ export default function AdminPanel() {
                       {trialExpired ? 'Trial expired (now locked)' : `Trial ends ${new Date(u.trial_ends_at).toLocaleDateString()} (${daysLeft}d left)`}
                     </span>
                   )}
+                  {u.account_status === 'pending_payment' && (() => {
+                    const c = registrationClock(u)
+                    return c && (
+                      <span style={{ color: c.overdue ? '#c0392b' : '#946200', fontWeight: 700 }}>
+                        {c.overdue ? `⏰ Payment overdue by ${c.text} — can be cancelled` : `⏳ Cancels in ${c.text}`}
+                      </span>
+                    )
+                  })()}
                   <span>Calendar events: {u.event_count}</span>
                   <span>To-dos: {u.todo_count}</span>
                 </div>
@@ -199,6 +275,21 @@ export default function AdminPanel() {
                     <button className="btn-primary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => activate(u.user_id)}>
                       Activate (lifetime)
                     </button>
+                  )}
+                  {u.account_status === 'pending_payment' && (
+                    <>
+                      <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => emailPaymentReminder(u)}>
+                        ✉ Payment reminder
+                      </button>
+                      {registrationClock(u)?.overdue && (
+                        <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => emailCancellation(u)}>
+                          ✉ Cancellation notice
+                        </button>
+                      )}
+                      <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13, color: '#c0392b', borderColor: '#f3b4ad' }} onClick={() => deleteUnpaid(u)}>
+                        🗑 Delete user
+                      </button>
+                    </>
                   )}
                   {u.account_status !== 'suspended' && (
                     <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => suspend(u.user_id)}>

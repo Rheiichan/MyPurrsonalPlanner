@@ -5,6 +5,7 @@ import AuthShell from '../components/AuthShell'
 
 export default function Signup() {
   const navigate = useNavigate()
+  const [nickname, setNickname] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -24,7 +25,7 @@ export default function Signup() {
       return
     }
     setLoading(true)
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nickname: nickname.trim() } } })
     setLoading(false)
     if (error) {
       setError(error.message)
@@ -60,6 +61,11 @@ export default function Signup() {
     <AuthShell>
       <h2 style={{ fontSize: 20, marginBottom: 18 }}>Create your account</h2>
       <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="nickname">Nickname</label>
+          <input id="nickname" required maxLength={30} value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="What should we call you?" autoFocus />
+          <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', marginTop: 4 }}>This is the name that will appear in your planner.</div>
+        </div>
         <div className="field">
           <label htmlFor="email">Email</label>
           <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />

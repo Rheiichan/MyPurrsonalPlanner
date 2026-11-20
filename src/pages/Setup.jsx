@@ -30,10 +30,10 @@ function calcBmi(heightCm, weightKg) {
 }
 
 export default function Setup() {
-  const { user, refreshProfile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
-  const [name, setName] = useState('')
+  const [name, setName] = useState(profile?.name || '')
   const [birthday, setBirthday] = useState('')
   const [height, setHeight] = useState('')
   const [weight, setWeight] = useState('')
