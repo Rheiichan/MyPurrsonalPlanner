@@ -11,7 +11,11 @@ export default defineConfig({
       filename: 'sw.js',
       registerType: 'autoUpdate',
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,png,svg,ico}']
+        globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        // Theme pictures are cached on first view instead (see src/sw.js), so a
+        // big photo never blocks or bloats the app install.
+        globIgnores: ['themes/**'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024
       },
       includeAssets: ['favicon.png', 'icons/apple-touch-icon.png'],
       manifest: {
@@ -19,7 +23,7 @@ export default defineConfig({
         short_name: 'PurrPlanner',
         description: 'Your cozy all-in-one life planner — calendar, mood, budget, fitness, and more.',
         theme_color: '#4FBDB0',
-        background_color: '#FFF8F3',
+        background_color: '#FCF4E6',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
