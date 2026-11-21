@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { ThemedMascot } from '../themeAssets'
-import { PRICE_NOW, PRICE_ORIGINAL, CURRENCY, PAYMENT_URL, REGISTRATION_DAYS } from '../pricing'
+import { PRICE_NOW, PRICE_ORIGINAL, CURRENCY, PAYMENT_URL, CONTACT_URL, REGISTRATION_DAYS } from '../pricing'
 
 const FEATURES = [
   ['Calendar', 'Month & week views, daily agenda, events and to-dos'],
@@ -95,6 +95,19 @@ export default function PendingActivation() {
             <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none' }}>
               Buy now — {CURRENCY}{PRICE_NOW}
             </a>
+            <div style={{ marginTop: 18, padding: 14, borderRadius: 'var(--radius-md)', border: '2px dashed var(--pink-500)', background: 'var(--pink-100)', textAlign: 'left' }}>
+              <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 800, letterSpacing: 0.5, padding: '3px 10px', borderRadius: 999, background: 'var(--pink-700)', color: '#fff' }}>
+                ⚡ FASTER · ZERO FEES
+              </span>
+              <p style={{ fontSize: 13.5, lineHeight: 1.5, margin: '8px 0 0', color: 'var(--ink)' }}>
+                Prefer to skip online payment fees? Contact our page to pay directly via <strong>GoTyme</strong>, <strong>GCash</strong> or <strong>Maya</strong>. We activate your account faster this way.
+              </p>
+              {CONTACT_URL && (
+                <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'inline-block', textDecoration: 'none', marginTop: 10 }}>
+                  Message our page to pay
+                </a>
+              )}
+            </div>
             <p style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginTop: 12, lineHeight: 1.5 }}>
               Please pay using this email so we can match your payment:<br />
               <strong style={{ color: 'var(--ink)' }}>{user?.email}</strong>
