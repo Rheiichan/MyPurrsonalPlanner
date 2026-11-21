@@ -136,3 +136,6 @@ html[data-theme="chiikawa"] .card {
   outline-offset: -8px;
 }
 html[data-theme="chiikawa"] .card .card { outline-offset: -6px; }
+
+/* Black & White theme: colorful parts (moods, self-care) become monochrome */
+html[data-theme="mono-typewriter"] .mono-gray { filter: grayscale(1) contrast(1.15); }

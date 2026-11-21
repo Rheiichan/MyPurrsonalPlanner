@@ -22,15 +22,15 @@ export default defineConfig({
         name: 'My Purrsonal Planner',
         short_name: 'PurrPlanner',
         description: 'Your cozy all-in-one life planner — calendar, mood, budget, fitness, and more.',
-        theme_color: '#4FBDB0',
+        theme_color: '#2E7A70',
         background_color: '#FCF4E6',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+          { src: '/icons/purr-icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/purr-icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/purr-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       }
     })

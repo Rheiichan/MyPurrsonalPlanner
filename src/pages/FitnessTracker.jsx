@@ -22,9 +22,9 @@ export default function FitnessTracker() {
         <div className="card" style={{ maxWidth: 420, margin: '40px auto 0', textAlign: 'center' }}>
           <h2 style={{ fontSize: 19, marginBottom: 10 }}>A couple details first</h2>
           <p style={{ fontSize: 14, color: 'var(--ink-soft)', marginBottom: 16 }}>
-            The Fitness Tracker needs your birthday, height, and weight to calculate anything accurately. Add those in My Profile, then come back here.
+            The Fitness Tracker needs your birthday, height, and weight to calculate anything accurately. Add those in My Profile and Settings, then come back here.
           </p>
-          <Link to="/profile" className="btn-primary" style={{ textDecoration: 'none' }}>Go to My Profile</Link>
+          <Link to="/profile" className="btn-primary" style={{ textDecoration: 'none' }}>Go to My Profile and Settings</Link>
         </div>
       </PageShell>
     )

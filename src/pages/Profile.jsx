@@ -10,8 +10,8 @@ export default function Profile() {
   const { user, profile, refreshProfile } = useAuth()
 
   return (
-    <PageShell title="My Profile">
-      <h1 style={{ fontSize: 22, marginBottom: 20 }}>My Profile</h1>
+    <PageShell title="My Profile and Settings">
+      <h1 style={{ fontSize: 22, marginBottom: 20 }}>My Profile and Settings</h1>
 
       <div className="card" style={{ marginBottom: 20 }}>
         <h3 style={{ fontSize: 15, marginBottom: 6 }}>Linked email</h3>

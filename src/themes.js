@@ -85,6 +85,8 @@ export const THEMES = {
   },
   'mono-typewriter': {
     label: 'Black & White Typewriter',
+    monochrome: true,
+    images: { mascot: '/themes/mono-typewriter/mascot.svg' },
     swatch: ['#111111', '#FFFFFF'],
     font: {
       display: "'Special Elite', 'Courier Prime', 'Courier New', monospace",
@@ -150,5 +152,9 @@ export function applyTheme(themeKey) {
     if (!link.dataset.orig) link.dataset.orig = link.getAttribute('href')
     link.setAttribute('href', theme.images?.favicon || link.dataset.orig)
   }
+  // Window / status-bar color follows the theme (matches the top bar).
+  let meta = document.querySelector('meta[name="theme-color"]')
+  if (!meta) { meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta) }
+  meta.setAttribute('content', theme.vars['--teal-700'])
   root.dataset.theme = themeKey && THEMES[themeKey] ? themeKey : DEFAULT_THEME
 }

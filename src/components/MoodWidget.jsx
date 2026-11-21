@@ -45,7 +45,7 @@ export default function MoodWidget({ compact = false }) {
   const selectedMood = todayLog ? moodByLevel(todayLog.mood_level) : null
 
   return (
-    <div>
+    <div className="mono-gray">
       <h3 style={{ fontSize: compact ? 15 : 16, marginBottom: compact ? 8 : 4 }}>Log your mood</h3>
       {!compact && (
         <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 12 }}>

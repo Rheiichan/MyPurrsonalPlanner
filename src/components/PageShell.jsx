@@ -1,10 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { HeaderIcon, PageBanner, ThemeHeader } from '../themeAssets'
 import { IconHome } from './icons'
 
 export default function PageShell({ children, title }) {
   const { signOut, isAdmin } = useAuth()
+  const route = useLocation().pathname.split('/')[1]
+  // Pages whose colors should turn monochrome in the Black & White theme
+  const grayClass = ['mood', 'selfcare'].includes(route) ? 'mono-gray' : undefined
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
@@ -33,7 +36,7 @@ export default function PageShell({ children, title }) {
       <div style={{ padding: '28px 32px 60px' }} className="content-pad">
         <ThemeHeader />
         <PageBanner />
-        {children}
+        <div className={grayClass}>{children}</div>
       </div>
       <style>{`
         @media (max-width: 640px) {

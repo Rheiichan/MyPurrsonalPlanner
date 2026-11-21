@@ -31,7 +31,7 @@ function messageUserAboutUsage(u) {
     '',
     "Your account is using a good chunk of data storage in My Purrsonal Planner. To keep things running smoothly, could you take a few minutes to clear out some old entries you no longer need?",
     '',
-    'Go to My Profile → Manage My Data, and choose which types of data to clear — you can pick and choose so nothing important gets deleted.',
+    'Go to My Profile and Settings → Manage My Data, and choose which types of data to clear — you can pick and choose so nothing important gets deleted.',
     '',
     'Thanks so much!',
   ].join('\n')
@@ -352,7 +352,7 @@ function MessageModal({ user, onClose }) {
     }
     bodyParts.push(
       '',
-      'You can do this yourself anytime — just go to My Profile → "Manage my data" in the app. You get to pick exactly what to clear, so anything important stays put.',
+      'You can do this yourself anytime — just go to My Profile and Settings → "Manage my data" in the app. You get to pick exactly what to clear, so anything important stays put.',
     )
     if (note.trim()) bodyParts.push('', note.trim())
     bodyParts.push('', 'Thanks!')

@@ -53,8 +53,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'My Purrsonal Planner'
   const options = {
     body: data.body || '',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: '/icons/purr-icon-192.png',
+    badge: '/icons/purr-icon-192.png',
     data: { url: data.url || '/hub' },
   }
   event.waitUntil(self.registration.showNotification(title, options))
