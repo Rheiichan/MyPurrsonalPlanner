@@ -2,7 +2,7 @@
 export const PRICE_NOW = 299
 export const PRICE_ORIGINAL = 399
 export const CURRENCY = '₱'
-export const PAYMENT_URL = 'https://paymongo.page/l/purrplanner'
+export const PAYMENT_URL = 'https://storefront.paymongo.com/sugar-sparkle-purrplanner'
 
 // Unpaid signups are cancelled after this many days.
 export const REGISTRATION_DAYS = 3
