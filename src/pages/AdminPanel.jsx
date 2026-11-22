@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import PageShell from '../components/PageShell'
 import { daysLeftInTrial } from '../access'
 import { DATA_CATEGORIES } from '../dataCategories'
-import { REGISTRATION_DAYS, PAYMENT_URL, PRICE_NOW, CURRENCY } from '../pricing'
+import { REGISTRATION_DAYS, PAYMENT_URL, CONTACT_URL, PRICE_NOW, CURRENCY } from '../pricing'
 
 function StatusPill({ status }) {
   const map = {
@@ -66,6 +66,42 @@ function emailPaymentReminder(u) {
     `Please pay using this email (${u.email}) so we can match your payment.`,
     '',
     'Thank you!',
+  ].join('\n'))
+}
+
+function emailPaymentConfirmation(u) {
+  openGmail(u.email, 'Payment received — welcome to My Purrsonal Planner!', [
+    `Hi${u.name ? ' ' + u.name : ''},`,
+    '',
+    'We have received your payment. Thank you so much for getting My Purrsonal Planner!',
+    '',
+    `Your account (${u.email}) is now active. If the app still shows the payment page, just refresh it (or close and reopen the app, then log in again) and all features will be unlocked.`,
+    '',
+    `Open the app here: ${window.location.origin}`,
+    '',
+    'HOW TO INSTALL IT AS AN APP',
+    '',
+    'Android (Chrome):',
+    '1. Open the link above in Chrome and log in.',
+    '2. Tap the 3-dot menu (top right).',
+    '3. Tap "Install app" or "Add to Home screen", then tap Install.',
+    '',
+    'iPhone / iPad (Safari):',
+    '1. Open the link above in Safari (it must be Safari).',
+    '2. Tap the Share button (square with an arrow).',
+    '3. Scroll down and tap "Add to Home Screen", then tap Add.',
+    '',
+    'PC / Laptop (Chrome or Edge):',
+    '1. Open the link above and log in.',
+    '2. Click the install icon at the right end of the address bar (a small screen with a down arrow), or open the browser menu and choose "Install My Purrsonal Planner" / "Cast, save and share > Install page as app".',
+    '3. Click Install. The app will open in its own window and appear on your desktop or Start menu.',
+    '',
+    'Tip: you need internet to sync and save, but you can still open and view your planner offline.',
+    '',
+    'FEEDBACK & SUGGESTIONS',
+    "We're open to feedback! If you run into a glitch or issue, or want to suggest a feature, just reply to this email" + (CONTACT_URL ? ` or message our page: ${CONTACT_URL}` : '') + '. Please include what you were doing and what device you use so we can fix it faster.',
+    '',
+    'Thank you and enjoy your planner!',
   ].join('\n'))
 }
 
@@ -274,6 +310,11 @@ export default function AdminPanel() {
                   {u.account_status !== 'active' && (
                     <button className="btn-primary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => activate(u.user_id)}>
                       Activate (lifetime)
+                    </button>
+                  )}
+                  {(u.account_status === 'active' || u.account_status === 'pending_payment') && (
+                    <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => emailPaymentConfirmation(u)}>
+                      ✉ Payment confirmation
                     </button>
                   )}
                   {u.account_status === 'pending_payment' && (
