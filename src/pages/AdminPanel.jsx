@@ -105,6 +105,21 @@ function emailPaymentConfirmation(u) {
   ].join('\n'))
 }
 
+function emailResetLink(u, url) {
+  openGmail(u.email, 'Reset your My Purrsonal Planner password', [
+    `Hi${u.name ? ' ' + u.name : ''},`,
+    '',
+    'Here is your password reset link for My Purrsonal Planner:',
+    url,
+    '',
+    'Open it, check that your email address is shown correctly, then create and confirm your new password. The link works once and expires in 24 hours.',
+    '',
+    'If you did not ask for this, you can ignore this email.',
+    '',
+    'Thank you!',
+  ].join('\n'))
+}
+
 function emailCancellation(u) {
   openGmail(u.email, 'Your My Purrsonal Planner registration has been cancelled', [
     `Hi${u.name ? ' ' + u.name : ''},`,
@@ -140,6 +155,8 @@ export default function AdminPanel() {
   const [pinResetFor, setPinResetFor] = useState(null)
   const [messagingUser, setMessagingUser] = useState(null)
   const [slots, setSlots] = useState(null)
+  const [resetLink, setResetLink] = useState(null)
+  const [copied, setCopied] = useState(false)
   const [, setTick] = useState(0)
 
   async function loadUsers() {
@@ -165,6 +182,14 @@ export default function AdminPanel() {
   useEffect(() => { const t = setInterval(() => setTick((n) => n + 1), 60000); return () => clearInterval(t) }, [])
 
   if (!isAdmin) return <Navigate to="/hub" replace />
+
+  async function makeResetLink(u) {
+    setError('')
+    setCopied(false)
+    const { data, error: err } = await supabase.rpc('admin_create_reset_token', { p_user_id: u.user_id })
+    if (err) { setError(err.message); return }
+    setResetLink({ user: u, url: `${window.location.origin}/reset-password?token=${data}` })
+  }
 
   async function activate(userId) {
     const note = noteDrafts[userId] || null
@@ -256,6 +281,23 @@ export default function AdminPanel() {
 
       {error && <p style={{ color: 'var(--pink-700)', fontSize: 13, marginBottom: 12 }}>{error}</p>}
 
+      {resetLink && (
+        <div className="card" style={{ padding: 16, marginBottom: 14, border: '2px dashed var(--pink-500)' }}>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>Password reset link for {resetLink.user.email}</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 8 }}>Valid for 24 hours, works once. Send it only to this user.</div>
+          <input readOnly value={resetLink.url} onFocus={(e) => e.target.select()} style={{ width: '100%', fontSize: 12, marginBottom: 10 }} />
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="btn-primary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={async () => { try { await navigator.clipboard.writeText(resetLink.url); setCopied(true) } catch { /* select + copy manually */ } }}>
+              {copied ? 'Copied!' : 'Copy link'}
+            </button>
+            <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => emailResetLink(resetLink.user, resetLink.url)}>
+              ✉ Email it to them
+            </button>
+            <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => setResetLink(null)}>Close</button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <p style={{ color: 'var(--ink-soft)' }}>Loading users…</p>
       ) : shown.length === 0 ? (
@@ -312,6 +354,9 @@ export default function AdminPanel() {
                       Activate (lifetime)
                     </button>
                   )}
+                  <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => makeResetLink(u)}>
+                    🔑 Password reset link
+                  </button>
                   {(u.account_status === 'active' || u.account_status === 'pending_payment') && (
                     <button className="btn-secondary" style={{ padding: '8px 14px', fontSize: 13 }} onClick={() => emailPaymentConfirmation(u)}>
                       ✉ Payment confirmation

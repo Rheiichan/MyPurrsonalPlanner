@@ -17,6 +17,8 @@ import Goals from './pages/Goals'
 import GratitudeJournal from './pages/GratitudeJournal'
 import SecretDiary from './pages/SecretDiary'
 import Profile from './pages/Profile'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import SelfCareChallenge from './pages/SelfCareChallenge'
 import Recipes from './pages/Recipes'
 import FitnessTracker from './pages/FitnessTracker'
@@ -95,6 +97,8 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/hub" replace />} />
       <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
       <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
+      <Route path="/forgot-password" element={<RedirectIfAuthed><ForgotPassword /></RedirectIfAuthed>} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/pending" element={<PendingRoute><PendingActivation /></PendingRoute>} />
       <Route path="/locked" element={<LockedRoute><LockedPage /></LockedRoute>} />
       <Route

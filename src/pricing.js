@@ -8,5 +8,8 @@ export const PAYMENT_URL = 'https://storefront.paymongo.com/sugar-sparkle-purrpl
 // Paste your Facebook page / Messenger link here. Leave '' to show text only.
 export const CONTACT_URL = 'https://m.me/630170880168629'
 
+// Email that receives password-reset requests from users.
+export const SUPPORT_EMAIL = 'sugarandsparklebykika@gmail.com'
+
 // Unpaid signups are cancelled after this many days.
 export const REGISTRATION_DAYS = 3
