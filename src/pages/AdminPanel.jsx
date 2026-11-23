@@ -64,6 +64,7 @@ function emailPaymentReminder(u) {
     '',
     `The digital planner is on sale for ${CURRENCY}${PRICE_NOW}. You can pay here: ${PAYMENT_URL}`,
     `Please pay using this email (${u.email}) so we can match your payment.`,
+    "Note: when you pay, the merchant name will show as 'Soaphrodite PH'. That's our sister brand, owned by the same family business as My Purrsonal Planner, so it's the right payment.",
     '',
     'Thank you!',
   ].join('\n'))
